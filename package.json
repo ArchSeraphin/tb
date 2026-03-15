@@ -4,9 +4,10 @@
   "description": "Plateforme unifiée QR, Signatures, VCards — Voilà Voilà",
   "main": "src/app.js",
   "scripts": {
+    "postinstall": "npx prisma generate",
     "dev": "concurrently \"node --watch src/app.js\" \"npx tailwindcss -i ./src/views/input.css -o ./public/css/app.css --watch\"",
     "build:css": "npx tailwindcss -i ./src/views/input.css -o ./public/css/app.css --minify",
-    "start": "npm run build:css && node src/app.js",
+    "start": "node src/app.js",
     "db:push": "npx prisma db push",
     "db:seed": "node prisma/seed.js",
     "db:studio": "npx prisma studio"

@@ -1,6 +1,6 @@
 node_modules/
 .env
 public/uploads/
-public/css/app.css
+# public/css/app.css  ← commité intentionnellement pour Plesk
 .DS_Store
 prisma/generated/
