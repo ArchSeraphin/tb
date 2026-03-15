@@ -54,7 +54,7 @@ router.get('/:orgSlug/members', checkRole('admin'), async (req, res, next) => {
       include: { user: true },
       orderBy: { invitedAt: 'asc' },
     });
-    res.render('organizations/members', { title: 'Membres', members, errors: [] });
+    res.render('organizations/members', { title: 'Membres', members, errors: [], old: {} });
   } catch (err) { next(err); }
 });
 
