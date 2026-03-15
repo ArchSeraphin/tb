@@ -21,8 +21,8 @@ router.get('/:orgSlug/settings', checkRole('admin'), async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-// POST /o/:orgSlug/settings
-router.post('/:orgSlug/settings',
+// PUT /o/:orgSlug/settings (form envoie POST + _method=PUT)
+router.put('/:orgSlug/settings',
   checkRole('admin'),
   orgUpload.single('logo'),
   [body('name').trim().notEmpty().withMessage('Nom requis.')],

@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html lang="fr" class="h-full bg-gray-100">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= title %> — Voilà Voilà Tools</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/app.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
   <script src="https://unpkg.com/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
 </head>
 <body class="h-full" x-data="{ sidebarOpen: false }">
+<div id="htmx-progress"></div>
 <div class="flex h-full">
-  <div x-show="sidebarOpen" @click="sidebarOpen=false" class="fixed inset-0 bg-gray-900/50 z-20 lg:hidden"></div>
+  <div x-cloak x-show="sidebarOpen" @click="sidebarOpen=false" class="fixed inset-0 bg-gray-900/50 z-20 lg:hidden"></div>
   <aside class="fixed inset-y-0 left-0 z-30 w-64 bg-white border-r border-gray-200 flex flex-col transition-transform duration-300 lg:translate-x-0 lg:static lg:flex" :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
     <%- include('../partials/sidebar') %>
   </aside>
