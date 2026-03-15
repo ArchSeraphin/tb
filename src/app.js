@@ -25,6 +25,11 @@ const publicRoutes  = require('./routes/public');
 const app = express();
 const prisma = new PrismaClient();
 
+// ─── Trust proxy (Plesk/nginx reverse proxy) ───────────────────────────────
+// Sans ça, Express voit la connexion comme HTTP en interne et refuse de
+// poser le cookie de session avec le flag Secure (requis en production).
+app.set('trust proxy', 1);
+
 // ─── Sécurité ──────────────────────────────────────────────────────────────
 app.use(helmet({
   contentSecurityPolicy: {
