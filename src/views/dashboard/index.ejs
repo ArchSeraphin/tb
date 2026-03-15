@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="fr" class="h-full">
+<html lang="fr" class="h-full bg-gray-100">
 <head>
   <meta charset="UTF-8"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tableau de bord — Voilà Voilà Tools</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/app.css">
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
   <script src="https://unpkg.com/htmx.org@2.0.0/dist/htmx.min.js"></script>
@@ -12,10 +12,8 @@
 <body class="h-full" x-data="{ sidebarOpen: false }">
 <div id="htmx-progress"></div>
 <div class="flex h-full">
-  <div x-cloak x-show="sidebarOpen" @click="sidebarOpen=false" class="fixed inset-0 z-20 lg:hidden" style="background: rgba(0,0,0,0.7);"></div>
-  <aside class="fixed inset-y-0 left-0 z-30 w-64 flex flex-col transition-transform duration-300 lg:translate-x-0 lg:static lg:flex"
-         style="background: var(--surface); border-right: 1px solid var(--border);"
-         :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
+  <div x-cloak x-show="sidebarOpen" @click="sidebarOpen=false" class="fixed inset-0 bg-gray-900/50 z-20 lg:hidden"></div>
+  <aside class="fixed inset-y-0 left-0 z-30 w-64 bg-white border-r border-gray-200 flex flex-col transition-transform duration-300 lg:translate-x-0 lg:static lg:flex" :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
     <%- include('../partials/sidebar') %>
   </aside>
   <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
@@ -23,110 +21,77 @@
     <main class="flex-1 overflow-y-auto p-6">
       <%- include('../partials/flash') %>
 
-      <!-- Greeting -->
-      <div class="mb-8">
-        <p style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); font-family: 'Syne', sans-serif; margin-bottom: 4px;">Dashboard</p>
-        <h1 style="font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 700; color: var(--text); line-height: 1.2;">Bonjour, <%= user?.name?.split(' ')[0] %></h1>
-        <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Voici l'activité de <strong style="color: var(--text-dim)"><%= org?.name || 'votre organisation' %></strong></p>
+      <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">Bonjour, <%= user?.name?.split(' ')[0] %> 👋</h1>
+        <p class="text-gray-500 mt-1">Voici un aperçu de votre activité</p>
       </div>
 
       <% if (stats && org) { %>
-
-      <!-- Stats grid -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
-
-        <div style="border: 1px solid var(--border); border-radius: 8px; background: var(--surface); padding: 16px 18px; position: relative; overflow: hidden;">
-          <div style="position: absolute; top: 0; right: 0; width: 60px; height: 60px; background: var(--accent-dim); border-radius: 0 8px 0 60px;"></div>
-          <p style="font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-family: 'Syne', sans-serif;">QR Codes</p>
-          <p style="font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800; color: var(--text); line-height: 1; margin: 8px 0 10px;"><%= stats.qrCount %></p>
-          <a href="/o/<%= org.slug %>/qr" style="font-size: 11px; color: var(--accent); text-decoration: none; font-weight: 500; transition: opacity 150ms;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">Gérer →</a>
+      <!-- Stats cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="card p-5">
+          <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">QR Codes</p>
+          <p class="text-3xl font-bold text-gray-900 mt-1"><%= stats.qrCount %></p>
+          <a href="/o/<%= org.slug %>/qr" class="text-xs text-brand-600 hover:text-brand-700 mt-2 inline-block">Gérer →</a>
         </div>
-
-        <div style="border: 1px solid var(--border); border-radius: 8px; background: var(--surface); padding: 16px 18px; position: relative; overflow: hidden;">
-          <div style="position: absolute; top: 0; right: 0; width: 60px; height: 60px; background: rgba(34,197,94,0.05); border-radius: 0 8px 0 60px;"></div>
-          <p style="font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-family: 'Syne', sans-serif;">Signatures</p>
-          <p style="font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800; color: var(--text); line-height: 1; margin: 8px 0 10px;"><%= stats.sigCount %></p>
-          <a href="/o/<%= org.slug %>/signatures" style="font-size: 11px; color: var(--accent); text-decoration: none; font-weight: 500; transition: opacity 150ms;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">Gérer →</a>
+        <div class="card p-5">
+          <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Signatures</p>
+          <p class="text-3xl font-bold text-gray-900 mt-1"><%= stats.sigCount %></p>
+          <a href="/o/<%= org.slug %>/signatures" class="text-xs text-brand-600 hover:text-brand-700 mt-2 inline-block">Gérer →</a>
         </div>
-
-        <div style="border: 1px solid var(--border); border-radius: 8px; background: var(--surface); padding: 16px 18px; position: relative; overflow: hidden;">
-          <div style="position: absolute; top: 0; right: 0; width: 60px; height: 60px; background: rgba(168,85,247,0.05); border-radius: 0 8px 0 60px;"></div>
-          <p style="font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-family: 'Syne', sans-serif;">VCards</p>
-          <p style="font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800; color: var(--text); line-height: 1; margin: 8px 0 10px;"><%= stats.vcardCount %></p>
-          <a href="/o/<%= org.slug %>/vcards" style="font-size: 11px; color: var(--accent); text-decoration: none; font-weight: 500; transition: opacity 150ms;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">Gérer →</a>
+        <div class="card p-5">
+          <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">VCards</p>
+          <p class="text-3xl font-bold text-gray-900 mt-1"><%= stats.vcardCount %></p>
+          <a href="/o/<%= org.slug %>/vcards" class="text-xs text-brand-600 hover:text-brand-700 mt-2 inline-block">Gérer →</a>
         </div>
-
-        <div style="border: 1px solid var(--border); border-radius: 8px; background: var(--surface); padding: 16px 18px; position: relative; overflow: hidden;">
-          <div style="position: absolute; top: 0; right: 0; width: 60px; height: 60px; background: rgba(251,191,36,0.05); border-radius: 0 8px 0 60px;"></div>
-          <p style="font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-family: 'Syne', sans-serif;">Clics QR</p>
-          <p style="font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800; color: var(--text); line-height: 1; margin: 8px 0 10px;"><%= stats.totalClicks %></p>
-          <span style="font-size: 11px; color: var(--text-dim); font-weight: 500;">Total cumulé</span>
+        <div class="card p-5">
+          <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Clics QR</p>
+          <p class="text-3xl font-bold text-gray-900 mt-1"><%= stats.totalClicks %></p>
+          <span class="text-xs text-gray-400 mt-2 inline-block">Total</span>
         </div>
       </div>
 
-      <!-- Actions rapides -->
-      <div style="margin-bottom: 6px;">
-        <p style="font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); font-family: 'Syne', sans-serif; margin-bottom: 12px;">Actions rapides</p>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-
-          <a href="/o/<%= org.slug %>/qr/create"
-             style="display: flex; align-items: center; gap: 14px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); text-decoration: none; transition: all 150ms; group;"
-             onmouseover="this.style.borderColor='rgba(0,0,255,0.3)'; this.style.background='var(--accent-dim)'"
-             onmouseout="this.style.borderColor='var(--border)'; this.style.background='var(--surface)'">
-            <div style="width: 36px; height: 36px; background: var(--accent-dim); border: 1px solid rgba(0,0,255,0.2); border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
-              <svg width="16" height="16" fill="none" stroke="var(--accent)" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
-              </svg>
-            </div>
-            <div>
-              <p style="font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px;">Nouveau QR Code</p>
-              <p style="font-size: 11px; color: var(--text-muted);">Lien court avec tracking</p>
-            </div>
-          </a>
-
-          <a href="/o/<%= org.slug %>/signatures/create"
-             style="display: flex; align-items: center; gap: 14px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); text-decoration: none; transition: all 150ms;"
-             onmouseover="this.style.borderColor='rgba(0,0,255,0.3)'; this.style.background='var(--accent-dim)'"
-             onmouseout="this.style.borderColor='var(--border)'; this.style.background='var(--surface)'">
-            <div style="width: 36px; height: 36px; background: var(--accent-dim); border: 1px solid rgba(0,0,255,0.2); border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
-              <svg width="16" height="16" fill="none" stroke="var(--accent)" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-              </svg>
-            </div>
-            <div>
-              <p style="font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px;">Nouvelle Signature</p>
-              <p style="font-size: 11px; color: var(--text-muted);">Générateur email HTML</p>
-            </div>
-          </a>
-
-          <a href="/o/<%= org.slug %>/vcards/create"
-             style="display: flex; align-items: center; gap: 14px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); text-decoration: none; transition: all 150ms;"
-             onmouseover="this.style.borderColor='rgba(0,0,255,0.3)'; this.style.background='var(--accent-dim)'"
-             onmouseout="this.style.borderColor='var(--border)'; this.style.background='var(--surface)'">
-            <div style="width: 36px; height: 36px; background: var(--accent-dim); border: 1px solid rgba(0,0,255,0.2); border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
-              <svg width="16" height="16" fill="none" stroke="var(--accent)" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
-              </svg>
-            </div>
-            <div>
-              <p style="font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px;">Nouvelle VCard</p>
-              <p style="font-size: 11px; color: var(--text-muted);">Page de contact mobile</p>
-            </div>
-          </a>
-
-        </div>
+      <!-- Accès rapide -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <a href="/o/<%= org.slug %>/qr/create" class="card p-5 hover:shadow-md transition-shadow group">
+          <div class="w-10 h-10 bg-brand-50 rounded-lg flex items-center justify-center mb-3 group-hover:bg-brand-100 transition-colors">
+            <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+          </div>
+          <h3 class="text-sm font-semibold text-gray-900">Nouveau QR Code</h3>
+          <p class="text-xs text-gray-500 mt-0.5">Créer un lien court avec QR</p>
+        </a>
+        <a href="/o/<%= org.slug %>/signatures/create" class="card p-5 hover:shadow-md transition-shadow group">
+          <div class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center mb-3 group-hover:bg-green-100 transition-colors">
+            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+          </div>
+          <h3 class="text-sm font-semibold text-gray-900">Nouvelle Signature</h3>
+          <p class="text-xs text-gray-500 mt-0.5">Générateur de signature email</p>
+        </a>
+        <a href="/o/<%= org.slug %>/vcards/create" class="card p-5 hover:shadow-md transition-shadow group">
+          <div class="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center mb-3 group-hover:bg-purple-100 transition-colors">
+            <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+          </div>
+          <h3 class="text-sm font-semibold text-gray-900">Nouvelle VCard</h3>
+          <p class="text-xs text-gray-500 mt-0.5">Page de contact mobile</p>
+        </a>
       </div>
 
       <% } else { %>
-      <!-- Empty state -->
-      <div style="border: 1px solid var(--border); border-radius: 8px; background: var(--surface); padding: 64px 32px; text-align: center; max-width: 400px; margin: 0 auto;">
-        <div style="width: 56px; height: 56px; background: var(--accent-dim); border: 1px solid rgba(0,0,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
-          <svg width="24" height="24" fill="none" stroke="var(--accent)" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+      <!-- Empty state : aucune organisation -->
+      <div class="card p-12 text-center max-w-md mx-auto">
+        <div class="w-16 h-16 bg-brand-50 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
           </svg>
         </div>
-        <h3 style="font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 8px;">Aucune organisation</h3>
-        <p style="font-size: 13px; color: var(--text-muted);">Votre compte n'a pas encore d'organisation associée. Contactez un administrateur.</p>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Aucune organisation</h3>
+        <p class="text-sm text-gray-500">Votre compte n'a pas encore d'organisation associée.</p>
       </div>
       <% } %>
 

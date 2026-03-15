@@ -1,41 +1,44 @@
+<%
+  // Ce fichier est rendu via layout auth
+  const layout = 'auth';
+%>
 <!DOCTYPE html>
-<html lang="fr" class="h-full">
+<html lang="fr" class="h-full bg-gray-50">
 <head>
   <meta charset="UTF-8"><link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Connexion — Voilà Voilà Tools</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/app.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
-<body class="h-full" style="display: flex; align-items: center; justify-content: center; padding: 24px; min-height: 100vh;">
-  <div style="width: 100%; max-width: 380px;">
+<body class="h-full flex items-center justify-center p-4 bg-gray-50">
+  <div class="w-full max-w-md">
 
     <!-- Logo -->
-    <div style="text-align: center; margin-bottom: 36px;">
-      <div style="display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; background: var(--accent); border-radius: 10px; margin-bottom: 16px;">
-        <svg width="20" height="20" fill="none" stroke="white" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center w-12 h-12 bg-brand-600 rounded-xl mb-4">
+        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
         </svg>
       </div>
-      <h1 style="font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 4px;">Voilà Voilà Tools</h1>
-      <p style="font-size: 13px; color: var(--text-muted);">La plateforme des créatifs</p>
+      <h1 class="text-2xl font-bold text-gray-900">Voilà Voilà Tools</h1>
+      <p class="text-sm text-gray-500 mt-1">La plateforme des créatifs</p>
     </div>
 
     <%- include('../partials/flash') %>
 
     <% if (errors && errors.length > 0) { %>
-    <div style="margin-bottom: 16px; padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(239,68,68,0.2); background: rgba(239,68,68,0.07);">
-      <% errors.forEach(e => { %><p style="font-size: 13px; color: #fca5a5;"><%= e.msg %></p><% }) %>
+    <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+      <% errors.forEach(e => { %><p class="text-sm text-red-700"><%= e.msg %></p><% }) %>
     </div>
     <% } %>
 
-    <!-- Card -->
-    <div style="border: 1px solid var(--border-mid); border-radius: 10px; background: var(--surface); padding: 28px 28px;">
-      <h2 style="font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 22px;">Se connecter</h2>
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+      <h2 class="text-xl font-bold text-gray-900 mb-6">Se connecter</h2>
 
-      <form method="POST" action="/auth/login" style="display: flex; flex-direction: column; gap: 16px;">
+      <form method="POST" action="/auth/login" class="space-y-4">
         <div>
           <label class="form-label" for="email">Email</label>
           <input type="email" id="email" name="email" required autocomplete="email"
@@ -46,15 +49,15 @@
           <input type="password" id="password" name="password" required autocomplete="current-password"
                  class="form-input" placeholder="••••••••">
         </div>
-        <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 10px; margin-top: 4px;">
+        <button type="submit" class="btn-primary w-full justify-center py-2.5">
           Se connecter
         </button>
       </form>
     </div>
 
-    <p style="text-align: center; font-size: 13px; color: var(--text-muted); margin-top: 20px;">
+    <p class="text-center text-sm text-gray-500 mt-6">
       Pas encore de compte ?
-      <a href="/auth/register" style="color: var(--accent); font-weight: 500; text-decoration: none;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">Créer un compte</a>
+      <a href="/auth/register" class="text-brand-600 hover:text-brand-700 font-medium">Créer un compte</a>
     </p>
   </div>
 </body>
