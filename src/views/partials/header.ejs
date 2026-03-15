@@ -37,7 +37,7 @@
       </svg>
     </button>
 
-    <div x-show="open" @click.outside="open = false" x-transition
+    <div x-cloak x-show="open" @click.outside="open = false" x-transition
          class="absolute right-4 top-14 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50">
       <div class="px-4 py-2 border-b border-gray-100">
         <p class="text-xs font-medium text-gray-900 truncate"><%= user?.name %></p>

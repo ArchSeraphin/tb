@@ -7,6 +7,7 @@
     show(msg, callback) { this.message = msg; this.onConfirm = callback; this.open = true; },
     confirm() { if (this.onConfirm) this.onConfirm(); this.open = false; }
   }"
+  x-cloak
   x-show="open"
   x-transition:enter="transition ease-out duration-200"
   x-transition:enter-start="opacity-0"

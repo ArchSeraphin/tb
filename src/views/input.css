@@ -6,6 +6,8 @@
   html {
     font-family: 'Inter', sans-serif;
   }
+  /* Cache les éléments Alpine avant initialisation (évite le flash) */
+  [x-cloak] { display: none !important; }
 }
 
 @layer components {

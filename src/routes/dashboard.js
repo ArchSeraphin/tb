@@ -20,6 +20,11 @@ router.get('/', isAuthenticated, async (req, res, next) => {
 
     // Par défaut, affiche les stats de la première org
     const org = memberships[0].organization;
+    const membership = memberships[0];
+
+    // Injecte dans les locals pour que la sidebar ait accès à currentOrg
+    res.locals.currentOrg = org;
+    res.locals.membership = membership;
 
     const [qrCount, sigCount, vcardCount] = await Promise.all([
       prisma.qrCode.count({ where: { organizationId: org.id } }),
