@@ -1,16 +1,21 @@
 <% if (flashSuccess && flashSuccess.length > 0) { %>
   <% flashSuccess.forEach(msg => { %>
-  <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)"
-       x-transition:leave="transition ease-in duration-300"
-       x-transition:leave-start="opacity-100 translate-y-0"
-       x-transition:leave-end="opacity-0 -translate-y-2"
-       class="mb-4 flex items-center gap-3 px-4 py-3 bg-green-50 border border-green-200 text-green-800 rounded-lg text-sm">
-    <svg class="w-4 h-4 flex-shrink-0 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+  <div x-data="{ show: true }" x-show="show"
+       x-init="setTimeout(() => show = false, 4500)"
+       x-transition:enter="transition ease-out duration-200"
+       x-transition:enter-start="opacity-0 translate-y-1"
+       x-transition:enter-end="opacity-100 translate-y-0"
+       x-transition:leave="transition ease-in duration-150"
+       x-transition:leave-start="opacity-100"
+       x-transition:leave-end="opacity-0 translate-y-1"
+       class="mb-3 animate-slide-up"
+       style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 8px; font-size: 13px; border: 1px solid rgba(34,197,94,0.2); background: rgba(34,197,94,0.07); color: #4ade80;">
+    <svg width="14" height="14" fill="currentColor" viewBox="0 0 20 20" style="flex-shrink:0; opacity:0.8;">
       <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
     </svg>
-    <span><%= msg %></span>
-    <button @click="show = false" class="ml-auto text-green-500 hover:text-green-700">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    <span style="flex: 1; color: #86efac;"><%= msg %></span>
+    <button @click="show = false" style="color: rgba(74,222,128,0.5); background: none; border: none; cursor: pointer; padding: 0; transition: color 120ms;" onmouseover="this.style.color='#4ade80'" onmouseout="this.style.color='rgba(74,222,128,0.5)'">
+      <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
     </button>
   </div>
   <% }) %>
@@ -18,17 +23,22 @@
 
 <% if (flashError && flashError.length > 0) { %>
   <% flashError.forEach(msg => { %>
-  <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 7000)"
-       x-transition:leave="transition ease-in duration-300"
-       x-transition:leave-start="opacity-100 translate-y-0"
-       x-transition:leave-end="opacity-0 -translate-y-2"
-       class="mb-4 flex items-center gap-3 px-4 py-3 bg-red-50 border border-red-200 text-red-800 rounded-lg text-sm">
-    <svg class="w-4 h-4 flex-shrink-0 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+  <div x-data="{ show: true }" x-show="show"
+       x-init="setTimeout(() => show = false, 6000)"
+       x-transition:enter="transition ease-out duration-200"
+       x-transition:enter-start="opacity-0 translate-y-1"
+       x-transition:enter-end="opacity-100 translate-y-0"
+       x-transition:leave="transition ease-in duration-150"
+       x-transition:leave-start="opacity-100"
+       x-transition:leave-end="opacity-0 translate-y-1"
+       class="mb-3 animate-slide-up"
+       style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 8px; font-size: 13px; border: 1px solid rgba(239,68,68,0.2); background: rgba(239,68,68,0.07); color: #f87171;">
+    <svg width="14" height="14" fill="currentColor" viewBox="0 0 20 20" style="flex-shrink:0; opacity:0.8;">
       <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
     </svg>
-    <span><%= msg %></span>
-    <button @click="show = false" class="ml-auto text-red-500 hover:text-red-700">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    <span style="flex: 1; color: #fca5a5;"><%= msg %></span>
+    <button @click="show = false" style="color: rgba(248,113,113,0.5); background: none; border: none; cursor: pointer; padding: 0; transition: color 120ms;" onmouseover="this.style.color='#f87171'" onmouseout="this.style.color='rgba(248,113,113,0.5)'">
+      <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
     </button>
   </div>
   <% }) %>
@@ -36,12 +46,14 @@
 
 <% if (flashInfo && flashInfo.length > 0) { %>
   <% flashInfo.forEach(msg => { %>
-  <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 6000)"
-       class="mb-4 flex items-center gap-3 px-4 py-3 bg-blue-50 border border-blue-200 text-blue-800 rounded-lg text-sm">
-    <svg class="w-4 h-4 flex-shrink-0 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+  <div x-data="{ show: true }" x-show="show"
+       x-init="setTimeout(() => show = false, 5000)"
+       class="mb-3 animate-slide-up"
+       style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 8px; font-size: 13px; border: 1px solid rgba(0,0,255,0.2); background: var(--accent-dim); color: #6680ff;">
+    <svg width="14" height="14" fill="currentColor" viewBox="0 0 20 20" style="flex-shrink:0;">
       <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
     </svg>
-    <span><%= msg %></span>
+    <span style="flex: 1;"><%= msg %></span>
   </div>
   <% }) %>
 <% } %>

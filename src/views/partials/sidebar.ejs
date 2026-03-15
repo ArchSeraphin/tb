@@ -1,52 +1,87 @@
 <%
   const orgSlug = (typeof currentOrg !== 'undefined' && currentOrg) ? currentOrg.slug : null;
-  const nav = [
-    { href: orgSlug ? `/o/${orgSlug}/qr`         : '#', label: 'QR Codes',   icon: 'qrcode'    },
-    { href: orgSlug ? `/o/${orgSlug}/signatures`  : '#', label: 'Signatures', icon: 'signature' },
-    { href: orgSlug ? `/o/${orgSlug}/vcards`      : '#', label: 'VCards',     icon: 'vcard'     },
-  ];
-
-  function isActive(href) {
-    return currentPath && currentPath.startsWith(href.replace(/\/[^\/]+$/, '').slice(0, -1) || href) ? 'bg-brand-50 text-brand-700 font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900';
-  }
 %>
+<style>
+  .sidebar-nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 6px 12px; border-radius: 6px;
+    font-size: 13px; font-weight: 500; color: var(--text-muted);
+    transition: all 120ms; cursor: pointer; text-decoration: none;
+    position: relative; border: 1px solid transparent;
+  }
+  .sidebar-nav-item:hover {
+    color: var(--text); background: var(--surface-2);
+    border-color: var(--border);
+  }
+  .sidebar-nav-item.active {
+    color: var(--text); background: var(--accent-dim);
+    border-color: rgba(0,0,255,0.15);
+  }
+  .sidebar-nav-item.active::before {
+    content: '';
+    position: absolute; left: -1px; top: 20%; bottom: 20%;
+    width: 2px; background: var(--accent);
+    border-radius: 0 2px 2px 0;
+  }
+  .sidebar-nav-item .icon { flex-shrink: 0; opacity: 0.6; width: 15px; height: 15px; }
+  .sidebar-nav-item.active .icon, .sidebar-nav-item:hover .icon { opacity: 1; }
+  .sidebar-section-label {
+    font-family: 'Syne', sans-serif; font-size: 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim);
+    padding: 0 12px; margin-bottom: 4px;
+  }
+</style>
 
 <!-- Logo -->
-<div class="flex items-center gap-3 px-5 py-5 border-b border-gray-100">
-  <div class="flex-shrink-0 w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
-    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+<div style="padding: 16px 16px 12px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px;">
+  <div style="width: 28px; height: 28px; background: var(--accent); border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+    <svg width="14" height="14" fill="none" stroke="white" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>
     </svg>
   </div>
-  <div class="min-w-0">
-    <p class="text-sm font-bold text-gray-900 truncate">Voilà Voilà</p>
-    <p class="text-xs text-gray-400 truncate">Tools</p>
+  <div style="min-width: 0;">
+    <div style="font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.2;">Voilà Voilà</div>
+    <div style="font-size: 10px; color: var(--text-muted); letter-spacing: 0.04em;">Tools</div>
   </div>
 </div>
 
-<!-- Switcher organisation -->
+<!-- Org switcher -->
 <% if (userOrgs && userOrgs.length > 0 && orgSlug) { %>
-<div class="px-4 py-3 border-b border-gray-100" x-data="{ open: false }">
-  <button @click="open = !open" class="w-full flex items-center justify-between text-left px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-    <div class="flex items-center gap-2 min-w-0">
-      <div class="w-6 h-6 rounded-md bg-brand-100 flex-shrink-0 flex items-center justify-center text-brand-600 text-xs font-bold">
+<div style="padding: 10px 12px; border-bottom: 1px solid var(--border);" x-data="{ open: false }">
+  <button @click="open = !open"
+    style="width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border); background: transparent; cursor: pointer; transition: all 120ms;"
+    :style="open ? 'border-color: var(--border-mid); background: var(--surface-2);' : ''"
+    onmouseover="this.style.borderColor='var(--border-mid)'; this.style.background='var(--surface-2)'"
+    onmouseout="if (!document.querySelector('[x-data]').__x.$data.open) { this.style.borderColor='var(--border)'; this.style.background='transparent'; }">
+    <div style="display: flex; align-items: center; gap: 8px; min-width: 0;">
+      <div style="width: 20px; height: 20px; border-radius: 4px; background: var(--accent-dim); border: 1px solid rgba(0,0,255,0.2); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-size: 10px; font-weight: 700; color: var(--accent);">
         <%= (currentOrg?.name || 'O')[0].toUpperCase() %>
       </div>
-      <span class="text-sm font-medium text-gray-700 truncate"><%= currentOrg?.name || 'Organisation' %></span>
+      <span style="font-size: 12px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><%= currentOrg?.name %></span>
     </div>
-    <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"/>
+    <svg width="12" height="12" fill="none" stroke="var(--text-muted)" viewBox="0 0 24 24" style="flex-shrink:0; transition: transform 150ms;" :style="open ? 'transform: rotate(180deg)' : ''">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
     </svg>
   </button>
-  <div x-show="open" @click.outside="open = false" x-transition class="mt-1 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+
+  <div x-cloak x-show="open" @click.outside="open = false"
+    x-transition:enter="transition ease-out duration-100"
+    x-transition:enter-start="opacity-0 translate-y-1"
+    x-transition:enter-end="opacity-100 translate-y-0"
+    style="margin-top: 4px; border: 1px solid var(--border-mid); border-radius: 6px; overflow: hidden; background: var(--surface-2);">
     <% userOrgs.forEach(org => { %>
-    <a href="/o/<%= org.slug %>/qr" class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 transition-colors <%= org.slug === orgSlug ? 'text-brand-600 bg-brand-50 font-medium' : 'text-gray-700' %>">
-      <div class="w-5 h-5 rounded flex-shrink-0 flex items-center justify-center bg-gray-100 text-gray-500 text-xs font-bold">
+    <a href="/o/<%= org.slug %>/qr"
+      style="display: flex; align-items: center; gap: 8px; padding: 7px 10px; font-size: 12px; text-decoration: none; transition: background 100ms;
+             color: <%= org.slug === orgSlug ? 'var(--accent)' : 'var(--text-muted)' %>;
+             background: <%= org.slug === orgSlug ? 'var(--accent-dim)' : 'transparent' %>;"
+      onmouseover="this.style.background='var(--surface-3)'"
+      onmouseout="this.style.background='<%= org.slug === orgSlug ? "var(--accent-dim)" : "transparent" %>'">
+      <div style="width: 16px; height: 16px; border-radius: 3px; background: var(--surface-3); display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; font-family: Syne; color: var(--text-muted); flex-shrink:0;">
         <%= org.name[0].toUpperCase() %>
       </div>
-      <span class="truncate"><%= org.name %></span>
+      <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;"><%= org.name %></span>
       <% if (org.slug === orgSlug) { %>
-      <svg class="w-4 h-4 ml-auto text-brand-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+      <svg width="12" height="12" fill="var(--accent)" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
       <% } %>
     </a>
     <% }) %>
@@ -54,72 +89,72 @@
 </div>
 <% } %>
 
-<!-- Navigation principale -->
-<nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-  <p class="px-3 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Outils</p>
+<!-- Navigation -->
+<nav style="flex: 1; padding: 12px 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 1px;">
 
-  <!-- QR Codes -->
-  <a href="<%= nav[0].href %>"
-     class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors <%= currentPath && currentPath.includes('/qr') ? 'bg-brand-50 text-brand-700 font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' %>">
-    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
+  <div class="sidebar-section-label" style="margin-bottom: 6px;">Outils</div>
+
+  <a href="<%= orgSlug ? `/o/${orgSlug}/qr` : '#' %>"
+    class="sidebar-nav-item <%= currentPath && currentPath.includes('/qr') ? 'active' : '' %>">
+    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
     </svg>
     QR Codes
   </a>
 
-  <!-- Signatures -->
-  <a href="<%= nav[1].href %>"
-     class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors <%= currentPath && currentPath.includes('/signatures') ? 'bg-brand-50 text-brand-700 font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' %>">
-    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+  <a href="<%= orgSlug ? `/o/${orgSlug}/signatures` : '#' %>"
+    class="sidebar-nav-item <%= currentPath && currentPath.includes('/signatures') ? 'active' : '' %>">
+    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
     </svg>
     Signatures Email
   </a>
 
-  <!-- VCards -->
-  <a href="<%= nav[2].href %>"
-     class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors <%= currentPath && currentPath.includes('/vcards') ? 'bg-brand-50 text-brand-700 font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' %>">
-    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
+  <a href="<%= orgSlug ? `/o/${orgSlug}/vcards` : '#' %>"
+    class="sidebar-nav-item <%= currentPath && currentPath.includes('/vcards') ? 'active' : '' %>">
+    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
     </svg>
     VCards
   </a>
 
   <% if (orgSlug) { %>
-  <div class="pt-4">
-    <p class="px-3 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Organisation</p>
-    <a href="/o/<%= orgSlug %>/settings"
-       class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors <%= currentPath && currentPath.includes('/settings') ? 'bg-brand-50 text-brand-700 font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' %>">
-      <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-      </svg>
-      Paramètres
-    </a>
-    <a href="/o/<%= orgSlug %>/members"
-       class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors <%= currentPath && currentPath.includes('/members') ? 'bg-brand-50 text-brand-700 font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' %>">
-      <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-      </svg>
-      Membres
-    </a>
+  <div style="margin-top: 16px; margin-bottom: 6px; padding-top: 12px; border-top: 1px solid var(--border);">
+    <div class="sidebar-section-label">Organisation</div>
   </div>
+  <a href="/o/<%= orgSlug %>/settings"
+    class="sidebar-nav-item <%= currentPath && currentPath.includes('/settings') ? 'active' : '' %>">
+    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+    </svg>
+    Paramètres
+  </a>
+  <a href="/o/<%= orgSlug %>/members"
+    class="sidebar-nav-item <%= currentPath && currentPath.includes('/members') ? 'active' : '' %>">
+    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+    </svg>
+    Membres
+  </a>
   <% } %>
 </nav>
 
-<!-- Footer sidebar : user -->
-<div class="border-t border-gray-100 p-4">
-  <div class="flex items-center gap-3">
-    <div class="w-8 h-8 rounded-full bg-brand-100 flex-shrink-0 flex items-center justify-center text-brand-600 text-sm font-bold">
+<!-- User footer -->
+<div style="padding: 10px 12px; border-top: 1px solid var(--border);">
+  <div style="display: flex; align-items: center; gap: 10px;">
+    <div style="width: 28px; height: 28px; border-radius: 50%; background: var(--accent-dim); border: 1px solid rgba(0,0,255,0.2); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; color: var(--accent);">
       <%= user?.name?.[0]?.toUpperCase() || 'U' %>
     </div>
-    <div class="min-w-0 flex-1">
-      <p class="text-sm font-medium text-gray-900 truncate"><%= user?.name || '' %></p>
-      <p class="text-xs text-gray-400 truncate"><%= user?.email || '' %></p>
+    <div style="min-width: 0; flex: 1;">
+      <div style="font-size: 12px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><%= user?.name %></div>
+      <div style="font-size: 10px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><%= user?.email %></div>
     </div>
-    <a href="/auth/logout" title="Déconnexion" class="text-gray-400 hover:text-red-500 transition-colors flex-shrink-0">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+    <a href="/auth/logout" title="Déconnexion"
+      style="color: var(--text-dim); transition: color 120ms; flex-shrink: 0;"
+      onmouseover="this.style.color='#f87171'" onmouseout="this.style.color='var(--text-dim)'">
+      <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
       </svg>
     </a>
   </div>
