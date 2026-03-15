@@ -1,0 +1,6 @@
+node_modules/
+.env
+public/uploads/
+public/css/app.css
+.DS_Store
+prisma/generated/

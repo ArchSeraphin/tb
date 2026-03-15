@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-gray-100">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> — Voilà Voilà Tools</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/app.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script src="https://unpkg.com/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
+</head>
+<body class="h-full" x-data="{ sidebarOpen: false }">
+<div class="flex h-full">
+  <div x-show="sidebarOpen" @click="sidebarOpen=false" class="fixed inset-0 bg-gray-900/50 z-20 lg:hidden"></div>
+  <aside class="fixed inset-y-0 left-0 z-30 w-64 bg-white border-r border-gray-200 flex flex-col transition-transform duration-300 lg:translate-x-0 lg:static lg:flex" :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
+    <%- include('../partials/sidebar') %>
+  </aside>
+  <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+    <%- include('../partials/header') %>
+    <main class="flex-1 overflow-y-auto p-6">
+      <%- include('../partials/flash') %>
+
+      <div class="mb-6 flex items-center gap-3">
+        <a href="/o/<%= currentOrg.slug %>/qr" class="text-gray-400 hover:text-gray-600">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        </a>
+        <h1 class="text-2xl font-bold text-gray-900"><%= title %></h1>
+      </div>
+
+      <% if (errors && errors.length > 0) { %>
+      <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+        <% errors.forEach(e => { %><p class="text-sm text-red-700"><%= e.msg %></p><% }) %>
+      </div>
+      <% } %>
+
+      <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+
+        <!-- Formulaire -->
+        <div class="space-y-5"
+             x-data="{
+               url: '<%= qr ? qr.targetUrl : (old.targetUrl || '') %>',
+               color: '<%= qr ? qr.design?.color : (old['design.color'] || '#000000') %>',
+               bg: '<%= qr ? qr.design?.bg : (old['design.bg'] || '#ffffff') %>',
+               style: '<%= qr ? qr.design?.style : (old['design.style'] || 'square') %>',
+               transparent: <%= qr ? qr.design?.transparent : false %>,
+               logoSize: <%= qr ? (qr.design?.logoSize || 0.3) : 0.3 %>,
+             }"
+             x-init="$watch('url', () => updateQR()); $watch('color', () => updateQR()); $watch('bg', () => updateQR()); $watch('style', () => updateQR()); $watch('transparent', () => updateQR()); $watch('logoSize', () => updateQR());"
+        >
+          <form method="POST"
+                action="<%= qr ? `/o/${currentOrg.slug}/qr/${qr.id}?_method=PUT` : `/o/${currentOrg.slug}/qr` %>"
+                enctype="multipart/form-data"
+                class="space-y-5">
+            <% if (qr) { %><input type="hidden" name="_method" value="PUT"><% } %>
+
+            <div class="card card-body">
+              <h2 class="text-base font-semibold text-gray-900 mb-4">Informations</h2>
+              <div class="space-y-4">
+                <div>
+                  <label class="form-label" for="name">Nom du projet</label>
+                  <input type="text" id="name" name="name" required class="form-input"
+                         placeholder="Ex : Site Voilà Voilà" value="<%= qr ? qr.name : (old.name || '') %>">
+                </div>
+                <div>
+                  <label class="form-label" for="targetUrl">URL de destination</label>
+                  <input type="url" id="targetUrl" name="targetUrl" required class="form-input"
+                         placeholder="https://exemple.com"
+                         x-model="url"
+                         value="<%= qr ? qr.targetUrl : (old.targetUrl || '') %>">
+                  <% if (qr) { %>
+                  <p class="form-hint">Lien court : <a href="<%= appUrl %>/go/<%= qr.shortCode %>" target="_blank" class="text-brand-600"><%= appUrl %>/go/<%= qr.shortCode %></a></p>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+
+            <div class="card card-body">
+              <h2 class="text-base font-semibold text-gray-900 mb-4">Design</h2>
+              <div class="space-y-4">
+                <!-- Couleurs -->
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="form-label">Couleur des points</label>
+                    <div class="flex items-center gap-2">
+                      <input type="color" name="design.color" x-model="color" class="h-9 w-12 rounded cursor-pointer border border-gray-300" value="<%= qr ? qr.design?.color : '#000000' %>">
+                      <input type="text" x-model="color" class="form-input font-mono text-xs" placeholder="#000000" maxlength="7">
+                    </div>
+                  </div>
+                  <div x-show="!transparent">
+                    <label class="form-label">Couleur du fond</label>
+                    <div class="flex items-center gap-2">
+                      <input type="color" name="design.bg" x-model="bg" class="h-9 w-12 rounded cursor-pointer border border-gray-300" value="<%= qr ? qr.design?.bg : '#ffffff' %>">
+                      <input type="text" x-model="bg" class="form-input font-mono text-xs" placeholder="#ffffff" maxlength="7">
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Style des points -->
+                <div>
+                  <label class="form-label">Style des points</label>
+                  <div class="grid grid-cols-4 gap-2">
+                    <% ['square', 'dots', 'rounded', 'extra-rounded'].forEach(s => { %>
+                    <label class="cursor-pointer">
+                      <input type="radio" name="design.style" value="<%= s %>" x-model="style" class="sr-only">
+                      <div class="border-2 rounded-lg p-2 text-center text-xs font-medium transition-colors"
+                           :class="style === '<%= s %>' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'">
+                        <%= s.charAt(0).toUpperCase() + s.slice(1) %>
+                      </div>
+                    </label>
+                    <% }) %>
+                  </div>
+                </div>
+
+                <!-- Fond transparent -->
+                <div class="flex items-center gap-3">
+                  <input type="checkbox" id="transparent" name="design.transparent" value="true"
+                         x-model="transparent" class="rounded border-gray-300 text-brand-600" <%= qr && qr.design?.transparent ? 'checked' : '' %>>
+                  <label for="transparent" class="text-sm text-gray-700">Fond transparent</label>
+                  <input type="hidden" name="design.transparent" :value="transparent ? 'true' : 'false'">
+                </div>
+
+                <!-- Logo -->
+                <div>
+                  <label class="form-label">Logo central (optionnel)</label>
+                  <input type="file" name="logo" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100">
+                  <% if (qr && qr.logoPath) { %>
+                  <p class="form-hint">Logo actuel : <span class="font-mono"><%= qr.logoPath.split('/').pop() %></span></p>
+                  <% } %>
+                </div>
+
+                <!-- Taille du logo -->
+                <div>
+                  <label class="form-label">Taille du logo : <span x-text="Math.round(logoSize * 100) + '%'"></span></label>
+                  <input type="range" name="design.logoSize" x-model="logoSize" min="0.1" max="0.5" step="0.05" class="w-full">
+                </div>
+              </div>
+            </div>
+
+            <div class="flex gap-3">
+              <button type="submit" class="btn-primary flex-1 justify-center">
+                <%= qr ? 'Mettre à jour' : 'Créer le QR Code' %>
+              </button>
+              <a href="/o/<%= currentOrg.slug %>/qr" class="btn-secondary">Annuler</a>
+            </div>
+          </form>
+        </div>
+
+        <!-- Preview -->
+        <div class="xl:sticky xl:top-6 xl:self-start">
+          <div class="card card-body">
+            <h2 class="text-base font-semibold text-gray-900 mb-4">Aperçu en temps réel</h2>
+            <div id="qr-preview" class="flex justify-center items-center min-h-[200px] bg-gray-50 rounded-xl p-6"></div>
+            <div class="mt-4 flex gap-2">
+              <button onclick="downloadQR()" class="btn-secondary flex-1 justify-center text-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                Télécharger PNG HD
+              </button>
+            </div>
+            <p class="text-xs text-gray-400 text-center mt-2">1000×1000px — Qualité impression</p>
+          </div>
+        </div>
+
+      </div><!-- /grid -->
+
+    </main>
+  </div>
+</div>
+
+<script>
+// ─── QR Code Preview (client-side via qr-code-styling) ───────────────────────
+let qrCode = null;
+let qrHD   = null;
+
+function getQRConfig(size) {
+  const color       = document.querySelector('[name="design.color"]')?.value || '#000000';
+  const bg          = document.querySelector('[name="design.bg"]')?.value || '#ffffff';
+  const style       = document.querySelector('[name="design.style"]:checked')?.value || 'square';
+  const transparent = document.querySelector('[name="design.transparent"]:not([type=hidden])')?.checked || false;
+  const logoSize    = parseFloat(document.querySelector('[name="design.logoSize"]')?.value || '0.3');
+  const url         = document.querySelector('[name="targetUrl"]')?.value || 'https://example.com';
+
+  return {
+    width: size, height: size,
+    type: 'svg',
+    data: url || 'https://voilavoila.tv',
+    dotsOptions: { color, type: style },
+    backgroundOptions: { color: transparent ? 'transparent' : bg },
+    imageOptions: { crossOrigin: 'anonymous', margin: 5, imageSize: logoSize },
+    cornersSquareOptions: { color },
+    cornersDotOptions: { color },
+  };
+}
+
+function updateQR() {
+  const container = document.getElementById('qr-preview');
+  if (!container) return;
+  container.innerHTML = '';
+
+  qrCode = new QRCodeStyling(getQRConfig(260));
+  qrCode.append(container);
+}
+
+function downloadQR() {
+  qrHD = new QRCodeStyling(getQRConfig(1000));
+  qrHD.download({ name: 'qrcode', extension: 'png' });
+}
+
+// Init au chargement
+document.addEventListener('DOMContentLoaded', updateQR);
+</script>
+<script src="/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              Int       @id @default(autoincrement())
+  name            String
+  email           String    @unique
+  password        String
+  avatar          String?
+  emailVerifiedAt DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  memberships       OrganizationMember[]
+  createdQrCodes    QrCode[]
+  createdSignatures Signature[]
+  createdVcards     Vcard[]
+  sessions          Session[]
+}
+
+model Organization {
+  id        Int      @id @default(autoincrement())
+  name      String
+  slug      String   @unique
+  logo      String?
+  ownerId   Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members    OrganizationMember[]
+  qrCodes    QrCode[]
+  signatures Signature[]
+  vcards     Vcard[]
+}
+
+model OrganizationMember {
+  id             Int       @id @default(autoincrement())
+  organizationId Int
+  userId         Int
+  role           String    @default("member") // "owner", "admin", "member"
+  invitedAt      DateTime  @default(now())
+  acceptedAt     DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
+}
+
+model QrCode {
+  id             Int      @id @default(autoincrement())
+  organizationId Int
+  createdById    Int
+  name           String
+  shortCode      String   @unique
+  targetUrl      String   @db.Text
+  design         Json
+  logoPath       String?
+  clickCount     Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdBy    User         @relation(fields: [createdById], references: [id])
+}
+
+model Signature {
+  id              Int      @id @default(autoincrement())
+  organizationId  Int
+  createdById     Int
+  name            String
+  slug            String
+  template        String   @default("classic")
+  identity        Json
+  contact         Json
+  style           Json
+  socialLinks     Json?
+  logoPath        String?
+  googleReviewUrl String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdBy    User         @relation(fields: [createdById], references: [id])
+
+  @@unique([organizationId, slug])
+}
+
+model Vcard {
+  id             Int      @id @default(autoincrement())
+  organizationId Int
+  createdById    Int
+  name           String
+  slug           String
+  identity       Json
+  contact        Json
+  design         Json
+  socialLinks    Json?
+  extraButtons   Json?
+  mediaPaths     Json?
+  showVcard      Boolean  @default(true)
+  isPublished    Boolean  @default(true)
+  vcardFilePath  String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdBy    User         @relation(fields: [createdById], references: [id])
+
+  @@unique([organizationId, slug])
+}
+
+model Session {
+  id        String   @id
+  sid       String   @unique
+  data      String   @db.MediumText
+  expiresAt DateTime
+  userId    Int?
+
+  user User? @relation(fields: [userId], references: [id])
+}

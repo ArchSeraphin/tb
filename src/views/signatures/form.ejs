@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-gray-100">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= sig ? 'Modifier' : 'Nouvelle' %> Signature — Voilà Voilà Tools</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/app.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script src="https://unpkg.com/htmx.org@2.0.0/dist/htmx.min.js"></script>
+</head>
+<body class="h-full" x-data="{ sidebarOpen: false }">
+<div class="flex h-full">
+  <div x-show="sidebarOpen" @click="sidebarOpen=false" class="fixed inset-0 bg-gray-900/50 z-20 lg:hidden"></div>
+  <aside class="fixed inset-y-0 left-0 z-30 w-64 bg-white border-r border-gray-200 flex flex-col transition-transform duration-300 lg:translate-x-0 lg:static lg:flex" :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
+    <%- include('../partials/sidebar') %>
+  </aside>
+  <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+    <%- include('../partials/header') %>
+    <main class="flex-1 overflow-y-auto p-6">
+      <%- include('../partials/flash') %>
+
+      <!-- En-tête -->
+      <div class="flex items-center gap-3 mb-6">
+        <a href="/o/<%= currentOrg.slug %>/signatures" class="text-gray-400 hover:text-gray-600 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        </a>
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900"><%= sig ? 'Modifier la signature' : 'Nouvelle signature' %></h1>
+          <% if (sig) { %><p class="text-sm text-gray-500 mt-0.5"><%= sig.name %></p><% } %>
+        </div>
+      </div>
+
+      <% if (errors && errors.length > 0) { %>
+      <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+        <ul class="list-disc list-inside space-y-1">
+          <% errors.forEach(e => { %><li class="text-sm text-red-700"><%= e %></li><% }) %>
+        </ul>
+      </div>
+      <% } %>
+
+      <!-- Layout deux colonnes -->
+      <div
+        x-data="signatureForm()"
+        class="flex gap-6 items-start"
+      >
+        <!-- Colonne gauche : formulaire -->
+        <div class="flex-1 min-w-0 space-y-5">
+          <form
+            method="POST"
+            action="<%= sig ? `/o/${currentOrg.slug}/signatures/${sig.id}?_method=PUT` : `/o/${currentOrg.slug}/signatures` %>"
+            enctype="multipart/form-data"
+          >
+            <% if (sig) { %>
+            <input type="hidden" name="_method" value="PUT">
+            <% } %>
+
+            <!-- Section Template -->
+            <div class="card">
+              <div class="card-header">
+                <h2 class="text-sm font-semibold text-gray-900">Template</h2>
+              </div>
+              <div class="card-body">
+                <div class="grid grid-cols-3 gap-3">
+                  <label class="relative cursor-pointer">
+                    <input type="radio" name="template" value="classic" class="sr-only peer"
+                      <%= (old?.template || sig?.template || 'classic') === 'classic' ? 'checked' : '' %>
+                      x-model="template">
+                    <div class="border-2 rounded-lg p-3 text-center transition-all peer-checked:border-brand-500 peer-checked:bg-brand-50 border-gray-200 hover:border-gray-300">
+                      <svg class="w-6 h-6 mx-auto mb-1 text-gray-500 peer-checked:text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h10"/>
+                      </svg>
+                      <span class="text-xs font-medium text-gray-700">Classique</span>
+                    </div>
+                  </label>
+                  <label class="relative cursor-pointer">
+                    <input type="radio" name="template" value="horizontal" class="sr-only peer"
+                      <%= (old?.template || sig?.template) === 'horizontal' ? 'checked' : '' %>
+                      x-model="template">
+                    <div class="border-2 rounded-lg p-3 text-center transition-all peer-checked:border-brand-500 peer-checked:bg-brand-50 border-gray-200 hover:border-gray-300">
+                      <svg class="w-6 h-6 mx-auto mb-1 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7"/>
+                      </svg>
+                      <span class="text-xs font-medium text-gray-700">Horizontal</span>
+                    </div>
+                  </label>
+                  <label class="relative cursor-pointer">
+                    <input type="radio" name="template" value="header" class="sr-only peer"
+                      <%= (old?.template || sig?.template) === 'header' ? 'checked' : '' %>
+                      x-model="template">
+                    <div class="border-2 rounded-lg p-3 text-center transition-all peer-checked:border-brand-500 peer-checked:bg-brand-50 border-gray-200 hover:border-gray-300">
+                      <svg class="w-6 h-6 mx-auto mb-1 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm0 8a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6z"/>
+                      </svg>
+                      <span class="text-xs font-medium text-gray-700">Header</span>
+                    </div>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section Général -->
+            <div class="card">
+              <div class="card-header">
+                <h2 class="text-sm font-semibold text-gray-900">Général</h2>
+              </div>
+              <div class="card-body space-y-4">
+                <div>
+                  <label class="form-label">Nom de la signature</label>
+                  <input type="text" name="name" class="form-input"
+                    value="<%= old?.name || sig?.name || '' %>"
+                    placeholder="Ex: Signature principale" required>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section Identité -->
+            <div class="card">
+              <div class="card-header">
+                <h2 class="text-sm font-semibold text-gray-900">Identité</h2>
+              </div>
+              <div class="card-body space-y-4">
+                <div>
+                  <label class="form-label">Nom complet</label>
+                  <input type="text" name="identity[name]" class="form-input"
+                    value="<%= old?.identity?.name || sig?.identity?.name || '' %>"
+                    placeholder="Jean Dupont"
+                    x-model="name">
+                </div>
+                <div>
+                  <label class="form-label">Poste / Fonction</label>
+                  <input type="text" name="identity[job]" class="form-input"
+                    value="<%= old?.identity?.job || sig?.identity?.job || '' %>"
+                    placeholder="Directeur Marketing"
+                    x-model="job">
+                </div>
+                <div>
+                  <label class="form-label">Accroche <span class="text-gray-400 font-normal">(optionnel)</span></label>
+                  <textarea name="identity[tagline]" class="form-textarea" rows="2"
+                    placeholder="Votre slogan ou accroche..."
+                    x-model="tagline"><%= old?.identity?.tagline || sig?.identity?.tagline || '' %></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section Contact -->
+            <div class="card">
+              <div class="card-header">
+                <h2 class="text-sm font-semibold text-gray-900">Contact</h2>
+              </div>
+              <div class="card-body space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="form-label">Email</label>
+                    <input type="email" name="contact[email]" class="form-input"
+                      value="<%= old?.contact?.email || sig?.contact?.email || '' %>"
+                      placeholder="jean@exemple.fr"
+                      x-model="email">
+                  </div>
+                  <div>
+                    <label class="form-label">Téléphone</label>
+                    <input type="tel" name="contact[phone]" class="form-input"
+                      value="<%= old?.contact?.phone || sig?.contact?.phone || '' %>"
+                      placeholder="+33 6 00 00 00 00"
+                      x-model="phone">
+                  </div>
+                </div>
+                <div>
+                  <label class="form-label">Entreprise</label>
+                  <input type="text" name="contact[company]" class="form-input"
+                    value="<%= old?.contact?.company || sig?.contact?.company || '' %>"
+                    placeholder="Nom de l'entreprise"
+                    x-model="company">
+                </div>
+                <div>
+                  <label class="form-label">Site web</label>
+                  <input type="url" name="contact[website]" class="form-input"
+                    value="<%= old?.contact?.website || sig?.contact?.website || '' %>"
+                    placeholder="https://exemple.fr"
+                    x-model="website">
+                </div>
+                <div>
+                  <label class="form-label">Adresse</label>
+                  <input type="text" name="contact[address]" class="form-input"
+                    value="<%= old?.contact?.address || sig?.contact?.address || '' %>"
+                    placeholder="12 rue de la Paix, Paris"
+                    x-model="address">
+                </div>
+              </div>
+            </div>
+
+            <!-- Section Design -->
+            <div class="card">
+              <div class="card-header">
+                <h2 class="text-sm font-semibold text-gray-900">Design</h2>
+              </div>
+              <div class="card-body space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="form-label">Couleur principale</label>
+                    <div class="flex items-center gap-2">
+                      <input type="color" name="style[primaryColor]"
+                        value="<%= old?.style?.primaryColor || sig?.style?.primaryColor || '#5b6af5' %>"
+                        x-model="primaryColor"
+                        class="w-10 h-10 rounded-lg border border-gray-200 cursor-pointer p-0.5">
+                      <input type="text" class="form-input font-mono text-sm"
+                        x-model="primaryColor"
+                        placeholder="#5b6af5">
+                    </div>
+                  </div>
+                  <div>
+                    <label class="form-label">Taille de police</label>
+                    <select name="style[fontSize]" class="form-select" x-model="fontSize">
+                      <% [11,12,13,14,15,16].forEach(s => { %>
+                      <option value="<%= s %>" <%= (old?.style?.fontSize || sig?.style?.fontSize || 13) == s ? 'selected' : '' %>><%= s %>px</option>
+                      <% }) %>
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label class="form-label">Largeur du logo — <span class="font-mono" x-text="logoWidth + 'px'"></span></label>
+                  <input type="range" name="style[logoWidth]" min="60" max="200" step="5"
+                    x-model="logoWidth"
+                    value="<%= old?.style?.logoWidth || sig?.style?.logoWidth || 120 %>"
+                    class="w-full accent-brand-600">
+                  <div class="flex justify-between text-xs text-gray-400 mt-1">
+                    <span>60px</span><span>200px</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <input type="checkbox" name="style[showBorder]" id="showBorder" value="true"
+                    x-model="showBorder"
+                    <%= (old?.style?.showBorder || sig?.style?.showBorder) ? 'checked' : '' %>
+                    class="w-4 h-4 rounded border-gray-300 text-brand-600 accent-brand-600">
+                  <label for="showBorder" class="text-sm text-gray-700">Afficher une bordure colorée</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section Logo -->
+            <div class="card">
+              <div class="card-header">
+                <h2 class="text-sm font-semibold text-gray-900">Logo</h2>
+              </div>
+              <div class="card-body space-y-3">
+                <% if (sig?.mediaPaths?.logo) { %>
+                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <img src="<%= sig.mediaPaths.logo %>" alt="Logo actuel" class="h-10 object-contain">
+                  <div>
+                    <p class="text-xs font-medium text-gray-700">Logo actuel</p>
+                    <label class="flex items-center gap-1 mt-1">
+                      <input type="checkbox" name="removeLogo" value="true" class="w-3 h-3">
+                      <span class="text-xs text-red-600">Supprimer le logo</span>
+                    </label>
+                  </div>
+                </div>
+                <% } %>
+                <div>
+                  <label class="form-label"><%= sig?.mediaPaths?.logo ? 'Nouveau logo' : 'Logo' %> <span class="text-gray-400 font-normal">(PNG, JPG — recommandé 300px)</span></label>
+                  <input type="file" name="logo" accept="image/*" class="form-input text-sm file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:text-sm file:font-medium file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100">
+                </div>
+              </div>
+            </div>
+
+            <!-- Section Réseaux sociaux -->
+            <div class="card">
+              <div class="card-header">
+                <h2 class="text-sm font-semibold text-gray-900">Réseaux sociaux</h2>
+              </div>
+              <div class="card-body space-y-3">
+                <template x-for="(social, i) in socials" :key="i">
+                  <div class="flex items-center gap-2">
+                    <select :name="`socialLinks[${i}][type]`" x-model="social.type" class="form-select w-36 flex-shrink-0">
+                      <option value="linkedin">LinkedIn</option>
+                      <option value="instagram">Instagram</option>
+                      <option value="facebook">Facebook</option>
+                      <option value="web">Site web</option>
+                      <option value="calendar">Calendrier</option>
+                    </select>
+                    <input type="url" :name="`socialLinks[${i}][url]`" x-model="social.url"
+                      class="form-input flex-1" placeholder="https://...">
+                    <button type="button" @click="removeSocial(i)"
+                      class="flex-shrink-0 text-gray-400 hover:text-red-500 transition-colors p-1">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                  </div>
+                </template>
+                <button type="button" @click="addSocial()"
+                  class="btn-secondary btn-sm w-full justify-center">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                  Ajouter un réseau
+                </button>
+              </div>
+            </div>
+
+            <!-- Section Avis Google -->
+            <div class="card">
+              <div class="card-header">
+                <h2 class="text-sm font-semibold text-gray-900">Avis Google <span class="text-gray-400 font-normal text-xs">(optionnel)</span></h2>
+              </div>
+              <div class="card-body">
+                <label class="form-label">Lien vers votre page d'avis Google</label>
+                <input type="url" name="googleReviewUrl" class="form-input"
+                  value="<%= old?.googleReviewUrl || sig?.googleReviewUrl || '' %>"
+                  x-model="googleReviewUrl"
+                  placeholder="https://g.page/r/...">
+                <p class="form-hint">Un bouton "Laisser un avis" sera ajouté à votre signature.</p>
+              </div>
+            </div>
+
+            <!-- Actions formulaire -->
+            <div class="flex items-center justify-between">
+              <a href="/o/<%= currentOrg.slug %>/signatures" class="btn-secondary">Annuler</a>
+              <button type="submit" class="btn-primary">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                <%= sig ? 'Enregistrer les modifications' : 'Créer la signature' %>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Colonne droite : aperçu sticky -->
+        <div class="w-96 flex-shrink-0 sticky top-6">
+          <div class="card overflow-hidden">
+            <div class="card-header flex items-center justify-between">
+              <h2 class="text-sm font-semibold text-gray-900">Aperçu</h2>
+              <button type="button" @click="copySignature()"
+                class="btn-secondary btn-sm">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                Copier HTML
+              </button>
+            </div>
+            <!-- Mockup fenêtre macOS -->
+            <div class="bg-gray-100 border-b border-gray-200">
+              <!-- Barre de titre -->
+              <div class="flex items-center gap-1.5 px-4 py-2.5 bg-gray-200 border-b border-gray-300">
+                <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                <div class="w-3 h-3 rounded-full bg-green-400"></div>
+              </div>
+              <!-- En-tête email mockup -->
+              <div class="px-4 py-3 bg-white border-b border-gray-200 space-y-1">
+                <div class="flex items-center gap-2 text-xs text-gray-500">
+                  <span class="w-12 text-gray-400 font-medium">À :</span>
+                  <span class="text-gray-600">destinataire@exemple.fr</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs text-gray-500">
+                  <span class="w-12 text-gray-400 font-medium">Objet :</span>
+                  <span class="text-gray-600">Votre message...</span>
+                </div>
+              </div>
+              <!-- Corps email -->
+              <div class="p-4 bg-white">
+                <p class="text-xs text-gray-500 mb-4 whitespace-pre-line">Bonjour,
+
+Veuillez trouver ci-joint...
+
+Cordialement,</p>
+                <!-- Signature preview -->
+                <div x-html="signatureHtml" class="mt-2 border-t border-gray-100 pt-3"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+<%- include('../partials/confirm-modal') %>
+
+<script>
+function generateSignatureHtml(data) {
+  const color = data.primaryColor || '#5b6af5';
+  const fontSize = data.fontSize || 13;
+  const logoWidth = data.logoWidth || 120;
+  const showBorder = data.showBorder;
+
+  const nameHtml = data.name ? `<strong style="font-size:${fontSize + 1}px; color:#1a1a2e; display:block; margin-bottom:2px;">${escHtml(data.name)}</strong>` : '';
+  const jobHtml = data.job ? `<span style="font-size:${fontSize}px; color:${color}; display:block; margin-bottom:2px;">${escHtml(data.job)}</span>` : '';
+  const taglineHtml = data.tagline ? `<span style="font-size:${fontSize - 1}px; color:#888; display:block; margin-bottom:4px; font-style:italic;">${escHtml(data.tagline)}</span>` : '';
+  const companyHtml = data.company ? `<span style="font-size:${fontSize}px; color:#444; display:block; margin-bottom:4px; font-weight:600;">${escHtml(data.company)}</span>` : '';
+
+  let contactLines = '';
+  if (data.phone) contactLines += `<span style="display:block; font-size:${fontSize - 1}px; color:#555; margin-bottom:2px;">📞 ${escHtml(data.phone)}</span>`;
+  if (data.email) contactLines += `<span style="display:block; font-size:${fontSize - 1}px; color:#555; margin-bottom:2px;">✉️ ${escHtml(data.email)}</span>`;
+  if (data.website) contactLines += `<span style="display:block; font-size:${fontSize - 1}px; color:${color}; margin-bottom:2px;">🌐 ${escHtml(data.website)}</span>`;
+  if (data.address) contactLines += `<span style="display:block; font-size:${fontSize - 1}px; color:#555; margin-bottom:2px;">📍 ${escHtml(data.address)}</span>`;
+
+  let socialsHtml = '';
+  if (data.socials && data.socials.length > 0) {
+    const labels = { linkedin: 'LinkedIn', instagram: 'Instagram', facebook: 'Facebook', web: 'Web', calendar: 'Agenda' };
+    socialsHtml = '<div style="margin-top:8px;">' +
+      data.socials.filter(s => s.url).map(s =>
+        `<a href="${escHtml(s.url)}" style="display:inline-block; margin-right:6px; font-size:${fontSize - 2}px; color:${color}; text-decoration:none; border:1px solid ${color}; border-radius:4px; padding:2px 6px;">${labels[s.type] || s.type}</a>`
+      ).join('') + '</div>';
+  }
+
+  let googleBtn = '';
+  if (data.googleReviewUrl) {
+    googleBtn = `<div style="margin-top:8px;"><a href="${escHtml(data.googleReviewUrl)}" style="display:inline-block; font-size:${fontSize - 1}px; color:#fff; background:#4285f4; text-decoration:none; border-radius:4px; padding:4px 10px;">⭐ Laisser un avis</a></div>`;
+  }
+
+  const infoBlock = `<td style="vertical-align:top; padding-left:${data.template === 'classic' ? '14px' : '0'};">
+    ${nameHtml}${jobHtml}${taglineHtml}${companyHtml}
+    <div style="margin-top:6px;">${contactLines}</div>
+    ${socialsHtml}
+    ${googleBtn}
+  </td>`;
+
+  if (data.template === 'classic') {
+    const borderStyle = showBorder ? `border-left:3px solid ${color}; padding-left:12px;` : '';
+    return `<table cellpadding="0" cellspacing="0" border="0" style="font-family:Arial,sans-serif; ${borderStyle}">
+      <tr>
+        <td style="vertical-align:top; padding-right:12px; font-size:0;">
+          <div style="width:${logoWidth}px; height:${logoWidth * 0.6}px; background:#f0f0f0; border-radius:6px; display:flex; align-items:center; justify-content:center;">
+            <span style="font-size:10px; color:#999;">Logo</span>
+          </div>
+        </td>
+        ${infoBlock}
+      </tr>
+    </table>`;
+  }
+
+  if (data.template === 'horizontal') {
+    const borderStyle = showBorder ? `border-top:3px solid ${color};` : '';
+    return `<table cellpadding="0" cellspacing="0" border="0" style="font-family:Arial,sans-serif; ${borderStyle} padding-top:10px; min-width:400px;">
+      <tr>
+        <td style="vertical-align:middle; padding-right:12px; font-size:0; border-right:1px solid #e5e7eb;">
+          <div style="width:${logoWidth}px; height:${logoWidth * 0.6}px; background:#f0f0f0; border-radius:6px; display:flex; align-items:center; justify-content:center;">
+            <span style="font-size:10px; color:#999;">Logo</span>
+          </div>
+        </td>
+        <td style="vertical-align:middle; padding-left:12px;">
+          ${nameHtml}${jobHtml}${companyHtml}
+          <div style="margin-top:4px; display:flex; flex-wrap:wrap; gap:8px;">
+            ${data.phone ? `<span style="font-size:${fontSize - 1}px; color:#555;">📞 ${escHtml(data.phone)}</span>` : ''}
+            ${data.email ? `<span style="font-size:${fontSize - 1}px; color:#555;">✉️ ${escHtml(data.email)}</span>` : ''}
+            ${data.website ? `<span style="font-size:${fontSize - 1}px; color:${color};">🌐 ${escHtml(data.website)}</span>` : ''}
+          </div>
+          ${socialsHtml}${googleBtn}
+        </td>
+      </tr>
+    </table>`;
+  }
+
+  if (data.template === 'header') {
+    const bgColor = color + '15';
+    return `<table cellpadding="0" cellspacing="0" border="0" style="font-family:Arial,sans-serif; width:100%; background:${bgColor}; border-radius:8px; overflow:hidden;">
+      <tr>
+        <td style="padding:12px 16px; background:${color}; text-align:left;">
+          <div style="width:${logoWidth}px; height:${logoWidth * 0.5}px; background:rgba(255,255,255,0.2); border-radius:4px; display:inline-flex; align-items:center; justify-content:center;">
+            <span style="font-size:10px; color:rgba(255,255,255,0.7);">Logo</span>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:12px 16px;">
+          ${nameHtml}${jobHtml}${taglineHtml}${companyHtml}
+          <div style="margin-top:6px;">${contactLines}</div>
+          ${socialsHtml}${googleBtn}
+        </td>
+      </tr>
+    </table>`;
+  }
+
+  return '';
+}
+
+function escHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function signatureForm() {
+  return {
+    template: '<%= sig?.template || "classic" %>',
+    name: `<%= (sig?.identity?.name || '').replace(/`/g, '\\`') %>`,
+    job: `<%= (sig?.identity?.job || '').replace(/`/g, '\\`') %>`,
+    tagline: `<%= (sig?.identity?.tagline || '').replace(/`/g, '\\`') %>`,
+    email: `<%= (sig?.contact?.email || '').replace(/`/g, '\\`') %>`,
+    phone: `<%= (sig?.contact?.phone || '').replace(/`/g, '\\`') %>`,
+    address: `<%= (sig?.contact?.address || '').replace(/`/g, '\\`') %>`,
+    company: `<%= (sig?.contact?.company || '').replace(/`/g, '\\`') %>`,
+    website: `<%= (sig?.contact?.website || '').replace(/`/g, '\\`') %>`,
+    primaryColor: '<%= sig?.style?.primaryColor || "#5b6af5" %>',
+    fontSize: <%= sig?.style?.fontSize || 13 %>,
+    logoWidth: <%= sig?.style?.logoWidth || 120 %>,
+    showBorder: <%= sig?.style?.showBorder ? 'true' : 'false' %>,
+    googleReviewUrl: `<%= (sig?.googleReviewUrl || '').replace(/`/g, '\\`') %>`,
+    socials: <%- sig?.socialLinks ? JSON.stringify(sig.socialLinks) : '[]' %>,
+    addSocial() { this.socials.push({ type: 'linkedin', url: '' }); },
+    removeSocial(i) { this.socials.splice(i, 1); },
+    get signatureHtml() {
+      return generateSignatureHtml(this);
+    },
+    copySignature() {
+      const html = this.signatureHtml;
+      try {
+        const blob = new Blob([html], { type: 'text/html' });
+        const data = [new ClipboardItem({ 'text/html': blob })];
+        navigator.clipboard.write(data).then(() => alert('Signature copiée dans le presse-papier !'));
+      } catch(e) {
+        navigator.clipboard.writeText(html).then(() => alert('HTML copié dans le presse-papier !'));
+      }
+    }
+  };
+}
+</script>
+<script src="/js/app.js"></script>
+</body>
+</html>

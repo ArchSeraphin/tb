@@ -1,0 +1,64 @@
+<%
+  // Ce fichier est rendu via layout auth
+  const layout = 'auth';
+%>
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-gray-50">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connexion — Voilà Voilà Tools</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/app.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="h-full flex items-center justify-center p-4 bg-gray-50">
+  <div class="w-full max-w-md">
+
+    <!-- Logo -->
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center w-12 h-12 bg-brand-600 rounded-xl mb-4">
+        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+      </div>
+      <h1 class="text-2xl font-bold text-gray-900">Voilà Voilà Tools</h1>
+      <p class="text-sm text-gray-500 mt-1">La plateforme des créatifs</p>
+    </div>
+
+    <%- include('../partials/flash') %>
+
+    <% if (errors && errors.length > 0) { %>
+    <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+      <% errors.forEach(e => { %><p class="text-sm text-red-700"><%= e.msg %></p><% }) %>
+    </div>
+    <% } %>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+      <h2 class="text-xl font-bold text-gray-900 mb-6">Se connecter</h2>
+
+      <form method="POST" action="/auth/login" class="space-y-4">
+        <div>
+          <label class="form-label" for="email">Email</label>
+          <input type="email" id="email" name="email" required autocomplete="email"
+                 class="form-input" placeholder="vous@exemple.fr">
+        </div>
+        <div>
+          <label class="form-label" for="password">Mot de passe</label>
+          <input type="password" id="password" name="password" required autocomplete="current-password"
+                 class="form-input" placeholder="••••••••">
+        </div>
+        <button type="submit" class="btn-primary w-full justify-center py-2.5">
+          Se connecter
+        </button>
+      </form>
+    </div>
+
+    <p class="text-center text-sm text-gray-500 mt-6">
+      Pas encore de compte ?
+      <a href="/auth/register" class="text-brand-600 hover:text-brand-700 font-medium">Créer un compte</a>
+    </p>
+  </div>
+</body>
+</html>
