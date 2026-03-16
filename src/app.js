@@ -12,6 +12,7 @@ const { PrismaClient } = require('@prisma/client');
 const passport      = require('./config/auth');
 const sessionConfig = require('./config/session');
 const flashMw       = require('./middleware/flash');
+const { getSocialIconSvg, SOCIAL_NETWORKS } = require('./helpers/socialIcons');
 
 // Routes
 const authRoutes    = require('./routes/auth');
@@ -67,9 +68,11 @@ app.use(flashMw);
 
 // ─── Locals globaux EJS ───────────────────────────────────────────────────
 app.use(async (req, res, next) => {
-  res.locals.user    = req.user || null;
-  res.locals.appUrl  = process.env.APP_URL || 'http://localhost:3000';
-  res.locals.currentPath = req.path;
+  res.locals.user           = req.user || null;
+  res.locals.appUrl         = process.env.APP_URL || 'http://localhost:3000';
+  res.locals.currentPath    = req.path;
+  res.locals.socialIcon     = getSocialIconSvg;
+  res.locals.SOCIAL_NETWORKS = SOCIAL_NETWORKS;
 
   // Charger les orgs du user pour le switcher sidebar
   if (req.user) {

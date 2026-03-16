@@ -286,12 +286,10 @@
               <div class="card-body space-y-3">
                 <template x-for="(social, i) in socials" :key="i">
                   <div class="flex items-center gap-2">
-                    <select :name="`socialLinks[${i}][type]`" x-model="social.type" class="form-select w-36 flex-shrink-0">
-                      <option value="linkedin">LinkedIn</option>
-                      <option value="instagram">Instagram</option>
-                      <option value="facebook">Facebook</option>
-                      <option value="web">Site web</option>
-                      <option value="calendar">Calendrier</option>
+                    <select :name="`socialLinks[${i}][type]`" x-model="social.type" class="form-select w-40 flex-shrink-0">
+                      <% SOCIAL_NETWORKS.forEach(n => { %>
+                      <option value="<%= n.value %>"><%= n.label %></option>
+                      <% }) %>
                     </select>
                     <input type="url" :name="`socialLinks[${i}][url]`" x-model="social.url"
                       class="form-input flex-1" placeholder="https://...">
@@ -406,7 +404,9 @@
                     <!-- Réseaux sociaux -->
                     <div x-show="socials.filter(s=>s.url).length > 0" class="flex flex-wrap gap-2 justify-center mb-3">
                       <template x-for="(s, i) in socials.filter(s=>s.url)" :key="i">
-                        <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold" :style="`background-color: ${colorBtn};`" x-text="s.type[0].toUpperCase()"></div>
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center" :style="`background-color: ${colorBtn};`">
+                          <div class="w-5 h-5" :style="getSocialIconStyle(s.type)"></div>
+                        </div>
                       </template>
                     </div>
                     <!-- Boutons extra -->
@@ -459,6 +459,9 @@ function vcardForm() {
     removeSocial(i) { this.socials.splice(i, 1); },
     addExtraBtn() { if (this.extraButtons.length < 3) this.extraButtons.push({ text: '', url: '' }); },
     removeExtraBtn(i) { this.extraButtons.splice(i, 1); },
+    getSocialIconStyle(type) {
+      return `background-color: #fff; -webkit-mask-image: url('/icons/social/${type}_plat.svg'); mask-image: url('/icons/social/${type}_plat.svg'); -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center;`;
+    },
   };
 }
 </script>

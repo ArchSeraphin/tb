@@ -270,12 +270,10 @@
               <div class="card-body space-y-3">
                 <template x-for="(social, i) in socials" :key="i">
                   <div class="flex items-center gap-2">
-                    <select :name="`socialLinks[${i}][type]`" x-model="social.type" class="form-select w-36 flex-shrink-0">
-                      <option value="linkedin">LinkedIn</option>
-                      <option value="instagram">Instagram</option>
-                      <option value="facebook">Facebook</option>
-                      <option value="web">Site web</option>
-                      <option value="calendar">Calendrier</option>
+                    <select :name="`socialLinks[${i}][type]`" x-model="social.type" class="form-select w-40 flex-shrink-0">
+                      <% SOCIAL_NETWORKS.forEach(n => { %>
+                      <option value="<%= n.value %>"><%= n.label %></option>
+                      <% }) %>
                     </select>
                     <input type="url" :name="`socialLinks[${i}][url]`" x-model="social.url"
                       class="form-input flex-1" placeholder="https://...">
@@ -389,7 +387,12 @@ function generateSignatureHtml(data) {
 
   let socialsHtml = '';
   if (data.socials && data.socials.length > 0) {
-    const labels = { linkedin: 'LinkedIn', instagram: 'Instagram', facebook: 'Facebook', web: 'Web', calendar: 'Agenda' };
+    const labels = {
+      linkedin: 'LinkedIn', instagram: 'Instagram', facebook: 'Facebook',
+      x: 'X', tiktok: 'TikTok', youtube: 'YouTube', threads: 'Threads',
+      pinterest: 'Pinterest', whatsapp: 'WhatsApp', snapchat: 'Snapchat',
+      behance: 'Behance', twitch: 'Twitch', web: 'Web', calendar: 'Agenda',
+    };
     socialsHtml = '<div style="margin-top:8px;">' +
       data.socials.filter(s => s.url).map(s =>
         `<a href="${escHtml(s.url)}" style="display:inline-block; margin-right:6px; font-size:${fontSize - 2}px; color:${color}; text-decoration:none; border:1px solid ${color}; border-radius:4px; padding:2px 6px;">${labels[s.type] || s.type}</a>`
