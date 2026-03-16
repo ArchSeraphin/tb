@@ -1,16 +1,20 @@
 <!DOCTYPE html>
-<html lang="fr" class="h-full bg-gray-100">
+<html lang="fr" class="h-full bg-gray-50">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= title %> — Voilà Voilà Tools</title>
+  <link rel="icon" href="/img/voilavoila-favicon.webp" type="image/webp">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/app.css">
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
   <script src="https://unpkg.com/htmx.org@2.0.0/dist/htmx.min.js"></script>
 </head>
 <body class="h-full" x-data="{ sidebarOpen: false }">
+
+  <div id="htmx-progress"></div>
 
   <div class="flex h-full">
 
@@ -29,7 +33,7 @@
 
     <!-- ─── Sidebar ───────────────────────────────────────────────── -->
     <aside
-      class="fixed inset-y-0 left-0 z-30 w-64 bg-white border-r border-gray-200 flex flex-col transition-transform duration-300 lg:translate-x-0 lg:static lg:flex"
+      class="fixed inset-y-0 left-0 z-30 w-64 vv-sidebar flex flex-col transition-transform duration-300 lg:translate-x-0 lg:static lg:flex"
       :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
     >
       <%- include('../partials/sidebar') %>

@@ -1,42 +1,70 @@
-<%
-  // Ce fichier est rendu via layout auth
-  const layout = 'auth';
-%>
 <!DOCTYPE html>
-<html lang="fr" class="h-full bg-gray-50">
+<html lang="fr" class="h-full">
 <head>
-  <meta charset="UTF-8"><link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <meta charset="UTF-8">
+  <link rel="icon" href="/img/voilavoila-favicon.webp" type="image/webp">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Connexion — Voilà Voilà Tools</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/app.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
 </head>
-<body class="h-full flex items-center justify-center p-4 bg-gray-50">
-  <div class="w-full max-w-md">
+<body class="h-full flex">
 
-    <!-- Logo -->
-    <div class="text-center mb-8">
-      <div class="inline-flex items-center justify-center w-12 h-12 bg-brand-600 rounded-xl mb-4">
-        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-        </svg>
+  <!-- ── Panneau gauche : bleu ── -->
+  <div class="hidden lg:flex lg:w-[55%] vv-sidebar flex-col justify-between p-12">
+    <div>
+      <img src="/img/voilavoila-logo-blanc.webp" alt="Voilà Voilà Tools" class="h-8 object-contain">
+    </div>
+    <div>
+      <h1 class="text-white font-display text-4xl font-bold leading-tight mb-4">
+        Créez des outils<br>de communication<br>mémorables.
+      </h1>
+      <p class="text-white/60 text-base leading-relaxed max-w-sm">
+        QR codes, signatures email, cartes de visite digitales — tout ce dont votre équipe a besoin, en un seul endroit.
+      </p>
+    </div>
+    <div class="flex items-center gap-6">
+      <div class="text-center">
+        <p class="text-white text-2xl font-bold">QR</p>
+        <p class="text-white/50 text-xs mt-0.5">Codes</p>
       </div>
-      <h1 class="text-2xl font-bold text-gray-900">Voilà Voilà Tools</h1>
-      <p class="text-sm text-gray-500 mt-1">La plateforme des créatifs</p>
+      <div class="w-px h-8 bg-white/20"></div>
+      <div class="text-center">
+        <p class="text-white text-2xl font-bold">✉</p>
+        <p class="text-white/50 text-xs mt-0.5">Signatures</p>
+      </div>
+      <div class="w-px h-8 bg-white/20"></div>
+      <div class="text-center">
+        <p class="text-white text-2xl font-bold">☑</p>
+        <p class="text-white/50 text-xs mt-0.5">VCards</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Panneau droit : formulaire ── -->
+  <div class="flex-1 flex flex-col items-center justify-center px-6 py-12 bg-white">
+
+    <!-- Logo mobile -->
+    <div class="lg:hidden mb-8 text-center">
+      <img src="/img/Logo_Voila Voila_RVB.png" alt="Voilà Voilà Tools" class="h-10 object-contain mx-auto">
     </div>
 
-    <%- include('../partials/flash') %>
+    <div class="w-full max-w-sm">
+      <div class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-900">Bon retour !</h2>
+        <p class="text-sm text-gray-500 mt-1">Connectez-vous à votre espace</p>
+      </div>
 
-    <% if (errors && errors.length > 0) { %>
-    <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-      <% errors.forEach(e => { %><p class="text-sm text-red-700"><%= e.msg %></p><% }) %>
-    </div>
-    <% } %>
+      <%- include('../partials/flash') %>
 
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-      <h2 class="text-xl font-bold text-gray-900 mb-6">Se connecter</h2>
+      <% if (errors && errors.length > 0) { %>
+      <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+        <% errors.forEach(e => { %><p class="text-sm text-red-700"><%= e.msg %></p><% }) %>
+      </div>
+      <% } %>
 
       <form method="POST" action="/auth/login" class="space-y-4">
         <div>
@@ -49,16 +77,17 @@
           <input type="password" id="password" name="password" required autocomplete="current-password"
                  class="form-input" placeholder="••••••••">
         </div>
-        <button type="submit" class="btn-primary w-full justify-center py-2.5">
+        <button type="submit" class="btn-primary w-full justify-center py-3 mt-2">
           Se connecter
         </button>
       </form>
-    </div>
 
-    <p class="text-center text-sm text-gray-500 mt-6">
-      Pas encore de compte ?
-      <a href="/auth/register" class="text-brand-600 hover:text-brand-700 font-medium">Créer un compte</a>
-    </p>
+      <p class="text-center text-sm text-gray-500 mt-6">
+        Pas encore de compte ?
+        <a href="/auth/register" class="text-brand-600 hover:text-brand-700 font-semibold">Créer un compte</a>
+      </p>
+    </div>
   </div>
+
 </body>
 </html>

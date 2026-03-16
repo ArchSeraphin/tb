@@ -4,10 +4,15 @@
 
 @layer base {
   html {
-    font-family: 'Inter', sans-serif;
+    font-family: 'DM Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
-  /* Cache les éléments Alpine avant initialisation (évite le flash) */
   [x-cloak] { display: none !important; }
+
+  h1, h2, h3 {
+    font-family: 'Syne', sans-serif;
+  }
 }
 
 /* ─── Barre de progression HTMX ─────────────────────────────────────────── */
@@ -16,27 +21,98 @@
   top: 0; left: 0;
   width: 0;
   height: 3px;
-  background: #4449ea;
+  background: linear-gradient(90deg, #0000ff, #6666ff);
   z-index: 9999;
   transition: width 300ms ease;
   border-radius: 0 2px 2px 0;
+  box-shadow: 0 0 8px rgba(0,0,255,0.5);
 }
-#htmx-progress.htmx-request {
-  width: 66%;
-}
+#htmx-progress.htmx-request { width: 66%; }
 .htmx-indicator { opacity: 0; transition: opacity 200ms; }
 .htmx-request .htmx-indicator,
 .htmx-request.htmx-indicator { opacity: 1; }
 
+/* ─── Animations ─────────────────────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-6px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.animate-fade-up   { animation: fadeUp  0.3s ease forwards; }
+.animate-slide-in  { animation: slideIn 0.25s ease forwards; }
+
+/* ─── Sidebar ────────────────────────────────────────────────────────────── */
+.vv-sidebar {
+  background: linear-gradient(160deg, #0000ff 0%, #0000cc 50%, #000099 100%);
+  position: relative;
+  overflow: hidden;
+}
+.vv-sidebar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Ccircle fill='%23ffffff' fill-opacity='0.03' cx='30' cy='30' r='30'/%3E%3C/g%3E%3C/svg%3E") repeat;
+  pointer-events: none;
+}
+.vv-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgba(255,255,255,0.65);
+  text-decoration: none;
+  transition: all 0.18s ease;
+  position: relative;
+}
+.vv-nav-item:hover {
+  color: #fff;
+  background: rgba(255,255,255,0.12);
+}
+.vv-nav-item.active {
+  color: #fff;
+  background: rgba(255,255,255,0.18);
+  font-weight: 600;
+}
+.vv-nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px; bottom: 6px;
+  width: 3px;
+  background: #fff;
+  border-radius: 0 3px 3px 0;
+}
+.vv-nav-section {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  padding: 0 12px;
+  margin-bottom: 4px;
+  font-family: 'Syne', sans-serif;
+}
+
 @layer components {
+  /* ── Buttons ── */
   .btn {
-    @apply inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2;
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-[0.98];
   }
   .btn-primary {
-    @apply btn bg-brand-600 text-white hover:bg-brand-700 focus:ring-brand-500;
+    background: #0000ff;
+    color: #fff;
+    @apply btn shadow-blue-sm hover:shadow-blue-md focus:ring-brand-500;
+    transition: background 0.18s ease, box-shadow 0.18s ease, transform 0.1s ease;
   }
+  .btn-primary:hover { background: #0000dd; }
   .btn-secondary {
-    @apply btn bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-brand-500;
+    @apply btn bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 hover:border-gray-300 focus:ring-brand-500 shadow-sm;
   }
   .btn-danger {
     @apply btn bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
@@ -45,14 +121,20 @@
     @apply px-3 py-1.5 text-xs;
   }
 
+  /* ── Forms ── */
   .form-label {
-    @apply block text-sm font-medium text-gray-700 mb-1;
+    @apply block text-sm font-medium text-gray-700 mb-1.5;
   }
   .form-input {
-    @apply block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500;
+    @apply block w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 transition-all;
+    outline: none;
+  }
+  .form-input:focus {
+    @apply bg-white border-brand-500;
+    box-shadow: 0 0 0 3px rgba(0,0,255,0.1);
   }
   .form-select {
-    @apply form-input appearance-none bg-white cursor-pointer;
+    @apply form-input appearance-none cursor-pointer;
   }
   .form-textarea {
     @apply form-input resize-y;
@@ -61,12 +143,14 @@
     @apply mt-1 text-xs text-red-600;
   }
   .form-hint {
-    @apply mt-1 text-xs text-gray-500;
+    @apply mt-1.5 text-xs text-gray-400;
   }
 
+  /* ── Cards ── */
   .card {
-    @apply bg-white rounded-xl shadow-sm border border-gray-100;
+    @apply bg-white rounded-2xl border border-gray-100 shadow-sm transition-shadow;
   }
+  .card:hover { box-shadow: 0 4px 20px rgba(0,0,255,0.07); }
   .card-header {
     @apply px-6 py-4 border-b border-gray-100;
   }
@@ -74,11 +158,12 @@
     @apply px-6 py-4;
   }
 
+  /* ── Badges ── */
   .badge {
-    @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium;
+    @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold;
   }
-  .badge-blue  { @apply badge bg-blue-100 text-blue-700; }
-  .badge-green { @apply badge bg-green-100 text-green-700; }
+  .badge-blue  { @apply badge bg-brand-100 text-brand-700; }
+  .badge-green { @apply badge bg-emerald-100 text-emerald-700; }
   .badge-gray  { @apply badge bg-gray-100 text-gray-600; }
   .badge-red   { @apply badge bg-red-100 text-red-700; }
 }
