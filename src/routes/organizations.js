@@ -47,7 +47,7 @@ router.put('/:orgSlug/settings',
 );
 
 // GET /o/:orgSlug/members
-router.get('/:orgSlug/members', checkRole('admin'), async (req, res, next) => {
+router.get('/:orgSlug/members', async (req, res, next) => {
   try {
     const members = await prisma.organizationMember.findMany({
       where: { organizationId: req.organization.id },
@@ -108,6 +108,46 @@ router.post('/:orgSlug/members/:id/remove', checkRole('admin'), async (req, res,
     await prisma.organizationMember.delete({ where: { id: member.id } });
     req.flash('success', 'Membre retiré.');
     res.redirect(`/o/${req.params.orgSlug}/members`);
+  } catch (err) { next(err); }
+});
+
+// PUT /o/:orgSlug/members/:id/role
+router.put('/:orgSlug/members/:id/role', checkRole('admin'), async (req, res, next) => {
+  try {
+    const role = req.body.role;
+    if (!['admin', 'member'].includes(role)) {
+      req.flash('error', 'Rôle invalide.');
+      return res.redirect(`/o/${req.params.orgSlug}/members`);
+    }
+    const member = await prisma.organizationMember.findUnique({ where: { id: parseInt(req.params.id) } });
+    if (!member || member.organizationId !== req.organization.id) {
+      req.flash('error', 'Membre introuvable.');
+      return res.redirect(`/o/${req.params.orgSlug}/members`);
+    }
+    if (member.role === 'owner') {
+      req.flash('error', 'Impossible de modifier le rôle du propriétaire.');
+      return res.redirect(`/o/${req.params.orgSlug}/members`);
+    }
+    if (member.userId === req.user.id) {
+      req.flash('error', 'Vous ne pouvez pas modifier votre propre rôle.');
+      return res.redirect(`/o/${req.params.orgSlug}/members`);
+    }
+    await prisma.organizationMember.update({ where: { id: member.id }, data: { role } });
+    req.flash('success', 'Rôle mis à jour.');
+    res.redirect(`/o/${req.params.orgSlug}/members`);
+  } catch (err) { next(err); }
+});
+
+// POST /o/:orgSlug/leave
+router.post('/:orgSlug/leave', async (req, res, next) => {
+  try {
+    if (req.membership.role === 'owner') {
+      req.flash('error', "Le propriétaire ne peut pas quitter l'organisation. Supprimez l'organisation ou transférez la propriété.");
+      return res.redirect(`/o/${req.params.orgSlug}/settings`);
+    }
+    await prisma.organizationMember.delete({ where: { id: req.membership.id } });
+    req.flash('success', "Vous avez quitté l'organisation.");
+    res.redirect('/dashboard');
   } catch (err) { next(err); }
 });
 

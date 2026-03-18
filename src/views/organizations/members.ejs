@@ -28,7 +28,8 @@
 
       <div class="max-w-3xl space-y-5">
 
-        <!-- Formulaire d'invitation -->
+        <!-- Formulaire d'invitation (admin/owner seulement) -->
+        <% if (membership?.role === 'owner' || membership?.role === 'admin') { %>
         <div class="card">
           <div class="card-header">
             <h2 class="text-sm font-semibold text-gray-900">Inviter un membre</h2>
@@ -53,9 +54,10 @@
                 Inviter
               </button>
             </form>
-            <p class="form-hint mt-2">Un email d'invitation sera envoyé. Si l'utilisateur n'a pas encore de compte, il sera invité à en créer un.</p>
+            <p class="form-hint mt-2">L'utilisateur doit déjà avoir un compte. Il aura immédiatement accès à l'organisation.</p>
           </div>
         </div>
+        <% } %>
 
         <!-- Liste des membres -->
         <div class="card overflow-hidden">
@@ -95,21 +97,39 @@
                 <td class="px-4 py-3">
                   <% if (member.role === 'owner') { %>
                   <span class="badge badge-blue">Propriétaire</span>
-                  <% } else if (member.role === 'admin') { %>
-                  <span class="badge badge-green">Admin</span>
+                  <% } else if (membership?.role === 'owner' || membership?.role === 'admin') { %>
+                    <% if (member.user?.id !== user?.id) { %>
+                    <form method="POST" action="/o/<%= currentOrg.slug %>/members/<%= member.id %>/role" class="inline">
+                      <input type="hidden" name="_method" value="PUT">
+                      <select name="role" onchange="this.form.submit()"
+                        class="text-xs border border-gray-200 rounded-md px-2 py-1 bg-white text-gray-700 cursor-pointer hover:border-brand-400 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                        <option value="member" <%= member.role === 'member' ? 'selected' : '' %>>Membre</option>
+                        <option value="admin" <%= member.role === 'admin' ? 'selected' : '' %>>Admin</option>
+                      </select>
+                    </form>
+                    <% } else { %>
+                    <span class="badge badge-<%= member.role === 'admin' ? 'green' : 'gray' %>"><%= member.role === 'admin' ? 'Admin' : 'Membre' %></span>
+                    <% } %>
                   <% } else { %>
-                  <span class="badge badge-gray">Membre</span>
+                  <span class="badge badge-<%= member.role === 'admin' ? 'green' : 'gray' %>"><%= member.role === 'admin' ? 'Admin' : 'Membre' %></span>
                   <% } %>
                 </td>
                 <td class="px-4 py-3 hidden lg:table-cell">
                   <span class="text-gray-400 text-xs">
-                    <%= member.createdAt ? new Date(member.createdAt).toLocaleDateString('fr-FR') : '—' %>
+                    <%= member.acceptedAt ? new Date(member.acceptedAt).toLocaleDateString('fr-FR') : '—' %>
                   </span>
                 </td>
                 <td class="px-4 py-3 text-right">
-                  <% if (member.role === 'owner' || member.user?.id === user?.id) { %>
+                  <% if (member.role === 'owner') { %>
                   <span class="text-xs text-gray-300">—</span>
-                  <% } else { %>
+                  <% } else if (member.user?.id === user?.id) { %>
+                  <form method="POST" action="/o/<%= currentOrg.slug %>/leave" class="inline"
+                    onsubmit="return confirm('Quitter l\'organisation ? Vous perdrez l\'accès à toutes ses ressources.')">
+                    <button type="submit" class="text-xs text-red-400 hover:text-red-600 transition-colors px-2 py-1 rounded hover:bg-red-50">
+                      Quitter
+                    </button>
+                  </form>
+                  <% } else if (membership?.role === 'owner' || membership?.role === 'admin') { %>
                   <form method="POST" action="/o/<%= currentOrg.slug %>/members/<%= member.id %>/remove" class="inline">
                     <input type="hidden" name="_method" value="DELETE">
                     <button type="submit"
@@ -121,6 +141,8 @@
                       </svg>
                     </button>
                   </form>
+                  <% } else { %>
+                  <span class="text-xs text-gray-300">—</span>
                   <% } %>
                 </td>
               </tr>

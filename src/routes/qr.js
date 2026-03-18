@@ -21,6 +21,7 @@ router.get('/:orgSlug/qr', async (req, res, next) => {
   try {
     const qrCodes = await prisma.qrCode.findMany({
       where: { organizationId: req.organization.id },
+      include: { createdBy: { select: { id: true, name: true } } },
       orderBy: { createdAt: 'desc' },
     });
     res.render('qr/index', { title: 'QR Codes', qrCodes, appUrl: process.env.APP_URL });

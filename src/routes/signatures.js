@@ -17,32 +17,31 @@ const sigValidation = [
 ];
 
 function buildSignatureData(req, existing = null) {
-  const socialLinks = [];
-  const types = [].concat(req.body['social.type'] || []);
-  const urls  = [].concat(req.body['social.url']  || []);
-  types.forEach((type, i) => { if (urls[i]) socialLinks.push({ type, url: urls[i] }); });
+  const rawSocials = req.body.socialLinks;
+  const socialsArray = Array.isArray(rawSocials) ? rawSocials : (rawSocials ? [rawSocials] : []);
+  const socialLinks = socialsArray.filter(s => s && s.url).map(s => ({ type: s.type, url: s.url }));
 
   return {
     name:     req.body.name,
     slug:     makeSlug(req.body.name) + '-' + (existing?.id || Date.now()),
     template: req.body.template || 'classic',
     identity: {
-      name:    req.body['identity.name']    || '',
-      job:     req.body['identity.job']     || '',
-      tagline: req.body['identity.tagline'] || '',
+      name:    req.body.identity?.name    || '',
+      job:     req.body.identity?.job     || '',
+      tagline: req.body.identity?.tagline || '',
     },
     contact: {
-      email:   req.body['contact.email']   || '',
-      phone:   req.body['contact.phone']   || '',
-      address: req.body['contact.address'] || '',
-      company: req.body['contact.company'] || '',
-      website: req.body['contact.website'] || '',
+      email:   req.body.contact?.email   || '',
+      phone:   req.body.contact?.phone   || '',
+      address: req.body.contact?.address || '',
+      company: req.body.contact?.company || '',
+      website: req.body.contact?.website || '',
     },
     style: {
-      primaryColor: req.body['style.primaryColor'] || '#5b6af5',
-      fontSize:     parseInt(req.body['style.fontSize'] || '13'),
-      logoWidth:    parseInt(req.body['style.logoWidth'] || '120'),
-      showBorder:   req.body['style.showBorder'] === 'true',
+      primaryColor: req.body.style?.primaryColor || '#5b6af5',
+      fontSize:     parseInt(req.body.style?.fontSize || '13'),
+      logoWidth:    parseInt(req.body.style?.logoWidth || '120'),
+      showBorder:   req.body.style?.showBorder === 'true',
     },
     socialLinks: socialLinks.length ? socialLinks : null,
     googleReviewUrl: req.body.googleReviewUrl || null,
@@ -54,6 +53,7 @@ router.get('/:orgSlug/signatures', async (req, res, next) => {
   try {
     const signatures = await prisma.signature.findMany({
       where: { organizationId: req.organization.id },
+      include: { createdBy: { select: { id: true, name: true } } },
       orderBy: { createdAt: 'desc' },
     });
     res.render('signatures/index', { title: 'Signatures Email', signatures });
