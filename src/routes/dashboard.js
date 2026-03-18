@@ -15,7 +15,7 @@ router.get('/', isAuthenticated, async (req, res, next) => {
     });
 
     if (memberships.length === 0) {
-      return res.render('dashboard/index', { title: 'Tableau de bord', stats: null, org: null });
+      return res.redirect('/o/new');
     }
 
     // Par défaut, affiche les stats de la première org

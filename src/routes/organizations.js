@@ -1,5 +1,4 @@
 const express = require('express');
-const bcrypt  = require('bcryptjs');
 const { body, validationResult } = require('express-validator');
 const { PrismaClient } = require('@prisma/client');
 const { isAuthenticated } = require('../middleware/auth');
@@ -10,7 +9,37 @@ const { orgUpload } = require('../config/multer');
 const router = express.Router();
 const prisma = new PrismaClient();
 
-// Toutes les routes nécessitent auth + org chargée
+// GET /o/new — formulaire de création d'organisation
+router.get('/new', isAuthenticated, (req, res) => {
+  res.render('organizations/new', { title: 'Nouvelle organisation', errors: [], old: {} });
+});
+
+// POST /o — créer une organisation
+router.post('/',
+  isAuthenticated,
+  [body('name').trim().notEmpty().withMessage('Nom requis.').isLength({ max: 100 })],
+  async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.render('organizations/new', { title: 'Nouvelle organisation', errors: errors.array(), old: req.body });
+    }
+    try {
+      const slug = makeSlug(req.body.name) + '-' + Math.random().toString(36).slice(2, 6);
+      const org = await prisma.organization.create({
+        data: {
+          name: req.body.name,
+          slug,
+          ownerId: req.user.id,
+          members: { create: { userId: req.user.id, role: 'owner', acceptedAt: new Date() } },
+        },
+      });
+      req.flash('success', `Organisation "${org.name}" créée avec succès.`);
+      res.redirect(`/o/${org.slug}/qr`);
+    } catch (err) { next(err); }
+  }
+);
+
+// Toutes les routes suivantes nécessitent auth + org chargée
 router.use('/:orgSlug', isAuthenticated, loadOrganization);
 
 // GET /o/:orgSlug/settings

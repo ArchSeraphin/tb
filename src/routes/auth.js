@@ -4,7 +4,6 @@ const { body, validationResult } = require('express-validator');
 const passport = require('../config/auth');
 const { isGuest, isAuthenticated } = require('../middleware/auth');
 const { PrismaClient } = require('@prisma/client');
-const { makeSlug } = require('../helpers/utils');
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -78,10 +77,6 @@ router.post('/register',
 
       const hash = await bcrypt.hash(req.body.password, 12);
 
-      // Crée l'utilisateur + son organisation par défaut
-      const orgName = req.body.name.split(' ')[0] || 'Mon Organisation';
-      const orgSlug = makeSlug(orgName) + '-' + Math.random().toString(36).slice(2, 6);
-
       const user = await prisma.user.create({
         data: {
           name: req.body.name,
@@ -90,21 +85,10 @@ router.post('/register',
         },
       });
 
-      const org = await prisma.organization.create({
-        data: {
-          name: orgName,
-          slug: orgSlug,
-          ownerId: user.id,
-          members: {
-            create: { userId: user.id, role: 'owner', acceptedAt: new Date() },
-          },
-        },
-      });
-
       req.logIn(user, (err) => {
         if (err) return next(err);
-        req.flash('success', `Bienvenue ${user.name} ! Votre compte et votre organisation ont été créés.`);
-        res.redirect(`/o/${org.slug}/qr`);
+        req.flash('success', `Bienvenue ${user.name} ! Créez maintenant votre première organisation.`);
+        res.redirect('/o/new');
       });
     } catch (err) {
       next(err);
